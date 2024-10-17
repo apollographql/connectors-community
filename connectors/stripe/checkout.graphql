@@ -1,0 +1,39 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  @source(
+    name: "stripe"
+    http: { 
+      baseURL: "https://api.stripe.com/v1"
+      headers: [
+        { name: "Authorization", value: "Bearer {$config.stripe}" }
+        { name: "Stripe-Version", value: "2024-06-20" }
+        { name: "Content-Type", value: "application/x-www-form-urlencoded" }
+      ]
+    }
+)
+
+type Session @key(fields: "id") {
+  id: ID!
+  subtotal: Float
+  shipping: Float
+  total: Float
+}
+
+type Query {
+  session (id: ID!): Session 
+    @connect(
+      source: "stripe"
+      http: { GET: "/session/{$args.id}"}
+      selection: """
+        id
+        subtotal: amount_subtotal
+        shipping: shipping_cost
+        total: amount_total
+      """
+      entity: true
+    )
+}

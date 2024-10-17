@@ -1,0 +1,98 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  @source(
+    name: "stripe"
+    http: { 
+      baseURL: "https://api.stripe.com/v1"
+      headers: [
+        { name: "Authorization", value: "Bearer {$config.stripe}" }
+        { name: "Stripe-Version", value: "2024-06-20" }
+        { name: "Content-Type", value: "application/x-www-form-urlencoded" }
+      ]
+    }
+)
+
+type Product @key(fields:"id"){
+  id: ID!
+  active: Boolean
+  name: String
+  price: Price 
+    @connect(
+      source: "stripe"
+      http: { GET: "/products/{$this.id}"}
+      selection: """
+      id: default_price
+      """
+    )
+}
+type Price @key(fields: "id") {
+  id: ID!
+  active: Boolean
+  currency: String
+  unitAmount: Float
+}
+
+type Query {
+  price (id: ID!): Price 
+    @connect(
+      source: "stripe"
+      http: { GET: "/prices/{$args.id}"}
+      selection: """
+        id
+        active
+        currency
+        unitAmount: unit_amont
+      """
+      entity: true
+    )
+  product (id: ID!): Product 
+    @connect(
+      source: "stripe"
+      http: { GET: "/products/{$args.id}"}
+      selection: """
+        id
+        active
+        name
+      """
+      entity: true
+    )
+}
+
+
+type Mutation {
+  createProductInStripe(input: CreateProductInput!): Product
+    @connect(
+      source: "stripe"
+      http: {
+        POST: "/products"
+        body: """
+        $args.input {
+          id
+          name
+          metadata: { is_featured: isFeatured }
+          default_price_data: defaultPrice {
+            unit_amount: unitAmount
+            currency
+          }
+        }
+        """
+      }
+      selection: "id"
+    )
+}
+
+input CreateProductInput {
+  id: ID!
+  name: String!
+  isFeatured: Boolean
+  defaultPrice: PriceInput
+}
+
+input PriceInput {
+  unitAmount: Int!
+  currency: String!
+}
