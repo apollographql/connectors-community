@@ -1,4 +1,6 @@
-import "dotenv/config.js";
+import {config} from "dotenv";
+config({ override: true });
+
 import prompts from "prompts";
 import { copyFile, cp, mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { resolve } from "path";
@@ -16,10 +18,12 @@ const graphosHeaders = {
 };
 
 async function main() {
-  if (!userApiKey && userApiKey.includes("service"))
+  if(!userApiKey) throw new Error("No User API key found in .env")
+  if (userApiKey && userApiKey.includes("service"))
     throw new Error(
       "You muse use a user API key from https://studio.apollographql.com/user-settings/api-keys"
     );
+
 
   let graphId = process.env.APOLLO_KEY?.split(":")[1];
   let graphVariant = process.env.APOLLO_GRAPH_VARIANT;
@@ -191,52 +195,79 @@ async function main() {
     graphVariant = "dev";
     graphApiKey = createGraphResults.account.createGraph.apiKeys[0].token;
 
-    const schemaPublish = await request(
-      graphosURL,
-      gql`
-        mutation PublishSubgraphSchema(
-          $graphId: ID!
-          $variantName: String!
-          $subgraphName: String!
-          $schemaDocument: PartialSchemaInput!
-          $url: String
-          $revision: String!
-        ) {
-          graph(id: $graphId) {
-            publishSubgraph(
-              graphVariant: $variantName
-              activePartialSchema: $schemaDocument
-              name: $subgraphName
-              url: $url
-              revision: $revision
-            ) {
-              launchUrl
-              updatedGateway
-              wasCreated
-            }
-          }
-        }
-      `,
-      {
-        graphId: graphId,
-        variantName: graphVariant,
-        subgraphName: connectorName,
-        schemaDocument: {
-          sdl: await readFile(
-            resolve("connectors", ".template", "connector.graphql"),
-            { encoding: "utf-8" }
-          ),
-        },
-        url: "http://connector",
-        revision: "initial",
-      },
-      graphosHeaders
+    let sdl= await readFile(
+      resolve("connectors", ".template", "connector.graphql"),
+      { encoding: "utf-8" }
     );
 
+    const publishSchemaDoc = gql`
+      mutation PublishSubgraphSchema(
+        $graphId: ID!
+        $variantName: String!
+        $subgraphName: String!
+        $schemaDocument: PartialSchemaInput!
+        $url: String
+        $revision: String!
+      ) {
+        graph(id: $graphId) {
+          publishSubgraph(
+            graphVariant: $variantName
+            activePartialSchema: $schemaDocument
+            name: $subgraphName
+            url: $url
+            revision: $revision
+          ) {
+            launchUrl
+            updatedGateway
+            wasCreated
+          }
+        }
+      }
+    `;
+    const variables = {
+      graphId: graphId,
+      variantName: graphVariant,
+      subgraphName: connectorName,
+      schemaDocument: {
+        sdl
+      },
+      url: `http://${connectorName}`,
+      revision: "initial",
+    };
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-    await sleep(1000);
+    
+    if(prebuild.use){
+      // need to publish modules
+      for(var i = 0; i<modules.length;i++){
+        const module = modules[i];
+        const moduleName = module.split(".")[0];
 
-    const changeFedVersion = await request(
+        variables.url = `http://${connectorName}`;
+        variables.subgraphName = moduleName
+        variables.schemaDocument.sdl = await readFile(
+          resolve("connectors", folderToClone, module),
+          { encoding: "utf-8" }
+        );
+
+        await request(
+          graphosURL,
+          publishSchemaDoc,
+          variables,
+          graphosHeaders
+        );
+        await sleep(1000);
+      }
+    } else {
+      await request(
+        graphosURL,
+        publishSchemaDoc,
+        variables,
+        graphosHeaders
+      );
+    }
+
+    await sleep(1000);
+    await request(
       graphosURL,
       gql`
         mutation PublishSubgraphSchema(
@@ -456,3 +487,29 @@ async function getUserOrgId(promptForGraph = false) {
   return { id: orgId, graphId, graphVariant };
 }
 
+async function updateFedVersion(graphId, graphVariant) {
+  await request(
+    graphosURL,
+    gql`
+      mutation PublishSubgraphSchema(
+        $graphId: ID!
+        $variantName: String!
+        $fedVersion: BuildPipelineTrack!
+      ) {
+        graph(id: $graphId) {
+          variant(name: $variantName) {
+            buildConfig(version: $fedVersion) {
+              id
+            }
+          }
+        }
+      }
+    `,
+    {
+      graphId: graphId,
+      variantName: graphVariant,
+      fedVersion: "FED_NEXT",
+    },
+    graphosHeaders
+  );
+}
