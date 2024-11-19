@@ -5,6 +5,5 @@
         "command": "rover", // Could be any other shell command
         "args": ["dev", "--supergraph-config","supergraph.yaml", "--router-config","router.yaml"],
         "type": "shell",
-        "problemMatcher": [],
     }]
 }

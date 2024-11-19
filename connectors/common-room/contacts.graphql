@@ -1,0 +1,32 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  @source(
+  name: "common-room"
+  http: {
+    baseURL: "https://jsonplaceholder.typicode.com/"
+    headers: [{ name: "Authorization", value: "Bearer {$config.common-room}" }]
+  }
+)
+
+type Contact @key(fields:"email"){
+  email: String!
+  body: String
+  title: String
+}
+
+type Query {
+  contact(email: String!): Contact
+    @connect(
+      source: "common-room"
+      http: { GET: "/posts" }
+      selection: """
+        id
+        title
+        body
+      """
+    )
+}

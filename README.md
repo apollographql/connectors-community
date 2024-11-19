@@ -19,7 +19,7 @@ The wizard is designed to be a quick and easy way to setup a new local environme
 **Note: The wizard *currently* only works for selecting a single connector. If you want to use multiple connectors, you'll need to copy the schema files for the additional connectors after running the wizard and updating your `suprgraph.yaml`/`router.yaml`**
 
 ```
-npm run wizard
+npm run start
 ```
 
 This will let you select a new or existing connector that is created locally for you and wired up to a graph in GraphOS. 
