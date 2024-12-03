@@ -111,9 +111,6 @@ async function main() {
     connectorName = connectorNamePrompt.name;
   }
 
-  // if (!clonePath.includes(connectorName) && connectorName)
-  //   clonePath = resolve(clonePath, connectorName);
-
   //Get user orgs and have them select if there is more than one
   //We want to filter orgs that don't have any graphs in them yet
   const org = await getUserOrgId(graphPrompt.type == 1);
@@ -138,7 +135,7 @@ async function main() {
       const idValidResults = await request(
         graphosURL,
         gql`
-          query IsGraphIdValid($graphId: ID!, $accountId: ID!) {
+          query CC_IsGraphIdValid($graphId: ID!, $accountId: ID!) {
             account(id: $accountId) {
               graphIDAvailable(id: $graphId)
             }
@@ -157,7 +154,7 @@ async function main() {
     const createGraphResults = await request(
       graphosURL,
       gql`
-        mutation CreateGraph(
+        mutation CC_CreateGraph(
           $graphType: GraphType!
           $hiddenFromUninvitedNonAdmin: Boolean!
           $createGraphId: ID!
@@ -201,7 +198,7 @@ async function main() {
     );
 
     const publishSchemaDoc = gql`
-      mutation PublishSubgraphSchema(
+      mutation CC_PublishSubgraphSchema(
         $graphId: ID!
         $variantName: String!
         $subgraphName: String!
@@ -270,7 +267,7 @@ async function main() {
     await request(
       graphosURL,
       gql`
-        mutation PublishSubgraphSchema(
+        mutation CC_PublishSubgraphSchema(
           $graphId: ID!
           $variantName: String!
           $fedVersion: BuildPipelineTrack!
@@ -297,7 +294,7 @@ async function main() {
     const newApiKeyResults = await request(
       graphosURL,
       gql`
-        mutation Graph($graphId: ID!, $keyName: String) {
+        mutation CC_CreateGraphKey($graphId: ID!, $keyName: String) {
           graph(id: $graphId) {
             newKey(keyName: $keyName) {
               token
@@ -379,8 +376,7 @@ async function main() {
       "env": { 
         "APOLLO_KEY": "${graphApiKey}",
         "APOLLO_GRAPH_REF": "${graphId}@${graphVariant}",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.0",
-        "APOLLO_ROVER_DEV_COMPOSITION_VERSION": "=2.10.0-preview.0",
+        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.1"
       }
     }
   },
@@ -404,7 +400,7 @@ async function getUserOrgId(promptForGraph = false) {
   const orgResults = await request(
     graphosURL,
     gql`
-      query UserMemberships {
+      query CC_UserMemberships {
         me {
           id
           ... on User {
@@ -457,7 +453,7 @@ async function getUserOrgId(promptForGraph = false) {
       const variantResults = await request(
         graphosURL,
         gql`
-          query Graph($graphId: ID!) {
+          query CC_GetGraphVariants($graphId: ID!) {
             graph(id: $graphId) {
               variants {
                 name
@@ -491,7 +487,7 @@ async function updateFedVersion(graphId, graphVariant) {
   await request(
     graphosURL,
     gql`
-      mutation PublishSubgraphSchema(
+      mutation CC_PublishSubgraphSchema(
         $graphId: ID!
         $variantName: String!
         $fedVersion: BuildPipelineTrack!
