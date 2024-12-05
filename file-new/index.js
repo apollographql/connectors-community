@@ -267,7 +267,7 @@ async function main() {
     await request(
       graphosURL,
       gql`
-        mutation CC_PublishSubgraphSchema(
+        mutation CC_ChangeBuildPipeline(
           $graphId: ID!
           $variantName: String!
           $fedVersion: BuildPipelineTrack!

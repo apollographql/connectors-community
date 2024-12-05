@@ -1,0 +1,74 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  @source(
+  name: "TripPin"
+  http: {
+    baseURL: "https://services.odata.org/V4/"
+  }
+)
+
+type Person {
+  id: ID!
+  firstName: String
+  lastName: String
+  gender: String
+  emails: [String]
+  address: Address
+  concurrency: Float
+}
+
+type Address {
+  state: String
+  city: String
+  country: String
+  street: String
+}
+
+type Query {
+  person(id:ID!): Person
+    @connect(
+      source: "TripPin"
+      http: { GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People/{$args.id}" }
+      selection: """
+        $.value {
+          id: UserName
+          firstName: FirstName
+          lastName: LastName
+          gender: Gender
+          emails: Emails
+          address: AddressInfo->first {
+            street: Address
+            country: City.CountryRegion
+            city: City.Name
+            state: City.Region
+          }
+          concurrency: Concurrency
+        }
+      """
+    )
+  people: [Person]
+    @connect(
+      source: "TripPin"
+      http: { GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People" }
+      selection: """
+        $.value {
+          id: UserName
+          firstName: FirstName
+          lastName: LastName
+          gender: Gender
+          emails: Emails
+          address: AddressInfo->first {
+            street: Address
+            country: City.CountryRegion
+            city: City.Name
+            state: City.Region
+          }
+          concurrency: Concurrency
+        }
+      """
+    )
+}
