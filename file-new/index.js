@@ -423,7 +423,7 @@ async function getUserOrgId(promptForGraph = false) {
   let graphId;
   let graphVariant;
   let orgId = orgResults.me.memberships[0].account.id;
-  if (orgResults.me.memberships.length > 0) {
+  if (orgResults.me.memberships.length > 1 && orgId) {
     let membershipChoices = orgResults.me.memberships;
     if (promptForGraph)
       membershipChoices = membershipChoices.filter(
