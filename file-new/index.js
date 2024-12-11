@@ -384,7 +384,7 @@ async function main() {
       "env": { 
         "APOLLO_KEY": "${graphApiKey}",
         "APOLLO_GRAPH_REF": "${graphId}@${graphVariant}",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": ${routerVersion}
+        "APOLLO_ROVER_DEV_ROUTER_VERSION": "${routerVersion}"
       }
     }
   },
