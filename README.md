@@ -31,7 +31,7 @@ npm i
 APOLLO_KEY=user:gh.michael-watson:867tg98076gbiln-iugiuy
 ```
 
-## CCreating a new project
+## Creating a new project
 
 The wizard is designed to be a quick and easy way to setup a new local environment that is synced with GraphOS. This includes creating a new graph or connecting to an existing graph. 
 
@@ -49,7 +49,35 @@ If you face any issues, please open up a GitHub issue with the terminal output.
 
 You can place your Apollo key and graph ref in the `.vscode/setting.json` file, reload the window and then the `rover dev` Task in vs code will start working with the local supergraph yaml.
 
-The Apollo VS Code extension is setup to work with the root supergraph.yaml file. You can modify that file to design out a graph using multiple connectors.
+The Apollo VS Code extension is setup to work with the root supergraph.yaml file. You can modify that file to design out a graph using multiple connectors, for example:
+
+```
+federation_version: =2.10.0-preview.3
+subgraphs:
+  stripe-products:
+    routing_url: http://stripe-product
+    schema:
+      file: ./connectors/stripe/products.graphql
+  stripe-checkout:
+    routing_url: http://stripe-checkout
+    schema:
+      file: ./connectors/stripe/checkout.graphql
+```
+
+You can also configure the `rover dev` Task for VS Code in the `.vscode/tasks.json` folder:
+
+```
+{
+    "version": "2.0.0",
+    "tasks": [{
+        "label": "rover dev",
+        "command": "rover", // Could be any other shell command
+        "args": ["dev", "--supergraph-config","supergraph.yaml", "--router-config","./connectors/stripe/router.yaml"],
+        "type": "shell",
+        "problemMatcher": [],
+    }]
+}
+```
 
 ## Contributing a connector to the community
 
