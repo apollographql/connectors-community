@@ -1,0 +1,101 @@
+# TrimbleMaps REST Connector
+
+This is an Apollo Connector that works with the TrimbleMaps API.
+https://developer.trimblemaps.com/restful-apis/developer-guide/introduction/
+
+To use this, you'll need to add the Trimble Maps `API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
+
+## Additional Setup for VS Code Task runner
+
+Edit your `.vscode/settings.json` to include the Strapi specific keys
+
+```
+{
+  "terminal.integrated.profiles.osx": {
+    "graphos": {
+      "path": "zsh",
+      "args": ["-l"],
+      "env": { 
+        "API_KEY": "",
+        "APOLLO_KEY": "",
+        "APOLLO_GRAPH_REF": "",
+        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.1",
+        "APOLLO_ROVER_DEV_COMPOSITION_VERSION": "=2.10.0-preview.0",
+      }
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "graphos"
+}
+
+```
+
+Then you can execute the "Tasks: Run Task" command in VS code to execute the `rover dev` task or simply open a new terminal window in vscode with the `graphos` profile, then you can simply run `rover dev --supergraph-config supergraph.yaml --router-config router.yaml`.
+
+
+## Query by address
+
+Example usage:
+
+```
+query locationByAddress($address: String!, $city: String!, $state: String!) {
+  ByAddress(address: $address, city: $city, state: $state) {
+    Lat
+    Lon
+  }
+}
+```
+
+Pass address, city and state as strings.
+Works with North America addresses only
+
+Example:
+`1600 Pennsylvania Avenue NW, Washington, DC`
+
+Returns:
+```
+{
+  "data": {
+    "ByAddress": {
+      "Lat": "38.897675",
+      "Lon": "-77.036547"
+    }
+  }
+}
+```
+
+## Query By Lat/Long coordinates
+
+Example usage:
+
+```
+query addressByGeo($lat: String!, $long: String!) {
+  ByGeo(lat: $lat, long: $long) {
+    Address
+    Timezone
+  }
+}
+```
+
+Pass Lat, long as strings
+Works worldwide and returns Address and Timezone
+
+Example:
+`48.8584° N, 2.2945° E is the Eiffel Tower`
+
+Returns:
+{
+  "data": {
+    "ByGeo": {
+      "Address": "2 Avenue Gustave Eiffel, 75007 Paris, Île-de-France, FR, Paris",
+      "Timezone": "GMT+1:00"
+    }
+  }
+}
+
+
+## Contributing
+
+Currently this connector supports a portion of the single search API
+https://developer.trimblemaps.com/restful-apis/location/single-search/single-search-api/.  There is an opporunity to build out and expose more of the single search parameters.
+
+In addition, there are a few premium/paid access APIs that Trimble Maps has available such as Routing and Distance Matrix.
