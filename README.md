@@ -15,7 +15,11 @@ This repository is mean to be an early space for builders to share API connector
 
 ##  Prerequisites
 
-- [Install rover](https://www.apollographql.com/docs/rover/getting-started)
+- [Install rover v0.27.0-preview.0](https://www.apollographql.com/docs/rover/getting-started)
+
+```
+curl -sSL https://rover.apollo.dev/nix/v0.27.0-preview.0 | sh
+```
 
 ## Setup repo to start creating new projects
 
