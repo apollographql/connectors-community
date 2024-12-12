@@ -8,25 +8,23 @@ extend schema
   name: "common-room"
   http: {
     baseURL: "https://jsonplaceholder.typicode.com/"
-    headers: [{ name: "Authorization", value: "Bearer {$config.common-room}" }]
+    headers: [{ name: "Authorization", value: "Bearer {$config.apiKey}" }]
   }
 )
 
 type Contact @key(fields:"email"){
   email: String!
-  body: String
-  title: String
+  name: String
 }
 
 type Query {
   contact(email: String!): Contact
     @connect(
       source: "common-room"
-      http: { GET: "/posts" }
+      http: { GET: "/user/{$args.email}" }
       selection: """
-        id
-        title
-        body
+        email
+        name
       """
     )
 }

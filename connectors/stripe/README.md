@@ -1,6 +1,6 @@
 # Stripe REST Connector
 
-This connector currently covers the Price object in Stripe. To use this, you'll need to add a `STRIPE_API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
+This connector currently covers a portion of the Stripe REST API. To use this, you'll need to add a `STRIPE_API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
 
 ## Additional Setup for VS Code Task runner
 
@@ -14,10 +14,6 @@ Edit your `.vscode/settings.json` to include the Strapi specific keys
       "args": ["-l"],
       "env": { 
         "STRIPE_API_KEY": "",
-        "APOLLO_KEY": "",
-        "APOLLO_GRAPH_REF": "",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.0",
-        "APOLLO_ROVER_DEV_COMPOSITION_VERSION": "=2.10.0-preview.0",
       }
     }
   },
