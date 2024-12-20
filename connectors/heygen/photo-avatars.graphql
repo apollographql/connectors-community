@@ -11,17 +11,130 @@ extend schema
       headers: [{ name: "X-API-KEY", value: "{$config.apiKey}" }]
     }
   )
+
 scalar Timestamp
+
+"""
+Unix timestamp in seconds
+"""
+scalar UnixTimestamp
+
+"""
+URL string for images and videos
+"""
+scalar URL
+
+"""
+Status string for various operations
+"""
+scalar Status
+
+enum AvatarAge {
+  YOUNG_ADULT
+  EARLY_MIDDLE_AGE
+  LATE_MIDDLE_AGE
+  SENIOR
+  UNSPECIFIED
+}
+
+enum AvatarGender {
+  WOMAN
+  MAN
+  UNSPECIFIED
+}
+
+enum AvatarEthnicity {
+  WHITE
+  BLACK
+  ASIAN_AMERICAN
+  EAST_ASIAN
+  SOUTH_EAST_ASIAN
+  SOUTH_ASIAN
+  MIDDLE_EASTERN
+  PACIFIC
+  HISPANIC
+  UNSPECIFIED
+}
+
+enum PhotoOrientation {
+  SQUARE
+  HORIZONTAL
+  VERTICAL
+}
+
+enum PhotoPose {
+  HALF_BODY
+  CLOSE_UP
+  FULL_BODY
+}
+
+enum PhotoStyle {
+  REALISTIC
+  PIXAR
+  CINEMATIC
+  VINTAGE
+  NOIR
+  CYBERPUNK
+  UNSPECIFIED
+}
+
+input GeneratePhotoInput {
+  name: String!
+  age: AvatarAge
+  gender: AvatarGender
+  ethnicity: AvatarEthnicity
+  orientation: PhotoOrientation
+  pose: PhotoPose
+  style: PhotoStyle
+  appearance: String
+}
+
+input CreatePhotoGroupInput {
+  name: String!
+  imageKey: String
+  generationId: String
+}
+
+input AddLooksInput {
+  groupId: String!
+  imageKeys: [String!]!
+  name: String!
+  generationId: String
+}
+
+input AddMotionInput {
+  id: ID!
+}
+
+input GenerateLooksInput {
+  groupId: String!
+  prompt: String!
+  orientation: PhotoOrientation!
+  pose: PhotoPose!
+  style: PhotoStyle!
+}
+
+input AddSoundEffectInput {
+  id: ID!
+}
+
+input UpscaleAvatarInput {
+  id: ID!
+}
+
+input TrainPhotoGroupInput {
+  groupId: String!
+}
 
 type PhotoAvatar {
   id: ID!
   groupId: String
   name: String
-  imageUrl: String
-  createdAt: Timestamp
-  status: String
+  imageUrl: URL
+  createdAt: UnixTimestamp
+  status: Status
   isMotion: Boolean
-  motionPreviewUrl: String
+  motionPreviewUrl: URL
   businessType: String
   upscaled: Boolean
   backgroundSoundEffect: String
@@ -31,6 +144,41 @@ type PhotoAvatar {
 type UpscaleAvailability {
   available: Boolean
   reason: String
+}
+
+type AddMotionResponse {
+  id: ID!
+}
+
+type UpscaleAvatarResponse {
+  id: ID!
+}
+
+type GeneratePhotoResponse {
+  generationId: String!
+}
+
+type AddSoundEffectResponse {
+  soundEffectId: String!
+}
+
+type GenerateLooksResponse {
+  generationId: String!
+}
+
+type TrainingJobStatus {
+  status: Status!
+  errorMsg: String
+  createdAt: UnixTimestamp!
+  updatedAt: UnixTimestamp
+}
+
+type GenerationStatusResponse {
+  id: ID!
+  status: Status!
+  msg: String
+  imageUrlList: [URL!]!
+  imageKeyList: [String!]!
 }
 
 type Query {
@@ -227,13 +375,15 @@ type Mutation {
       """
     )
 
-  addSoundEffect(id: ID!): AddSoundEffectResponse!
+  addSoundEffect(input: AddSoundEffectInput!): AddSoundEffectResponse!
     @connect(
       source: "heygen-v2"
       http: {
         POST: "/photo_avatar/add_sound_effect"
         body: """
-        id: $args.id
+        $args.input {
+          id
+        }
         """
       }
       selection: """
@@ -243,13 +393,15 @@ type Mutation {
       """
     )
 
-  upscaleAvatar(id: ID!): UpscaleAvatarResponse!
+  upscaleAvatar(input: UpscaleAvatarInput!): UpscaleAvatarResponse!
     @connect(
       source: "heygen-v2"
       http: {
         POST: "/photo_avatar/upscale"
         body: """
-        id: $args.id
+        $args.input {
+          id
+        }
         """
       }
       selection: """
@@ -259,13 +411,15 @@ type Mutation {
       """
     )
 
-  trainPhotoGroup(groupId: String!): Boolean!
+  trainPhotoGroup(input: TrainPhotoGroupInput!): Boolean!
     @connect(
       source: "heygen-v2"
       http: {
         POST: "/photo_avatar/train"
         body: """
-        group_id: $args.groupId
+        $args.input {
+          group_id: groupId
+        }
         """
       }
       selection: """
@@ -296,125 +450,4 @@ type Mutation {
       }
       """
     )
-}
-
-# Additional types needed for the schema
-enum AvatarAge {
-  YOUNG_ADULT
-  EARLY_MIDDLE_AGE
-  LATE_MIDDLE_AGE
-  SENIOR
-  UNSPECIFIED
-}
-
-enum AvatarGender {
-  WOMAN
-  MAN
-  UNSPECIFIED
-}
-
-enum AvatarEthnicity {
-  WHITE
-  BLACK
-  ASIAN_AMERICAN
-  EAST_ASIAN
-  SOUTH_EAST_ASIAN
-  SOUTH_ASIAN
-  MIDDLE_EASTERN
-  PACIFIC
-  HISPANIC
-  UNSPECIFIED
-}
-
-enum PhotoOrientation {
-  SQUARE
-  HORIZONTAL
-  VERTICAL
-}
-
-enum PhotoPose {
-  HALF_BODY
-  CLOSE_UP
-  FULL_BODY
-}
-
-enum PhotoStyle {
-  REALISTIC
-  PIXAR
-  CINEMATIC
-  VINTAGE
-  NOIR
-  CYBERPUNK
-  UNSPECIFIED
-}
-
-type AddMotionResponse {
-  id: ID!
-}
-
-type UpscaleAvatarResponse {
-  id: ID!
-}
-
-type GeneratePhotoResponse {
-  generationId: String!
-}
-
-type AddSoundEffectResponse {
-  soundEffectId: String!
-}
-
-type GenerateLooksResponse {
-  generationId: String!
-}
-
-type TrainingJobStatus {
-  status: String!
-  errorMsg: String
-  createdAt: Int!
-  updatedAt: Int
-}
-
-type GenerationStatusResponse {
-  id: String!
-  status: String!
-  msg: String
-  imageUrlList: [String!]!
-  imageKeyList: [String!]!
-}
-
-input GeneratePhotoInput {
-  name: String!
-  age: AvatarAge
-  gender: AvatarGender
-  ethnicity: AvatarEthnicity
-  orientation: PhotoOrientation
-  pose: PhotoPose
-  style: PhotoStyle
-  appearance: String
-}
-
-input CreatePhotoGroupInput {
-  name: String!
-  imageKey: String
-  generationId: String
-}
-
-input AddLooksInput {
-  groupId: String!
-  imageKeys: [String!]!
-  name: String!
-  generationId: String
-}
-
-input AddMotionInput {
-  id: ID!
-}
-
-input GenerateLooksInput {
-  groupId: String!
-  prompt: String!
-  orientation: PhotoOrientation!
-  pose: PhotoPose!
-  style: PhotoStyle!
 }

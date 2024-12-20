@@ -17,6 +17,15 @@ extend schema
 
 scalar Timestamp
 
+enum GroupType {
+  PUBLIC_PHOTO
+  PRIVATE
+}
+
+enum TrainStatus {
+  empty
+}
+
 type Avatar {
   id: ID!
   name: String
@@ -35,14 +44,6 @@ type AvatarGroup {
   trainStatus: TrainStatus
 }
 
-enum GroupType {
-  PUBLIC_PHOTO
-  PRIVATE
-}
-
-enum TrainStatus {
-  empty
-}
 type Query {
   listAvatars: [Avatar!]!
     @connect(
