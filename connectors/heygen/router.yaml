@@ -8,11 +8,14 @@ headers:
           matching: .*
 telemetry:
   instrumentation:
-    spans: 
+    spans:
       mode: spec_compliant
 
-# preview_connectors:
-#   subgraphs:
-#     connector:
-#       $config:
-#         apiKey: ${env.API_KEY}
+preview_connectors:
+  subgraphs:
+    heygen-avatars:
+      $config:
+        apiKey: ${env.HEYGEN_API_KEY}
+    heygen-photo-avatars:
+      $config:
+        apiKey: ${env.HEYGEN_API_KEY}
