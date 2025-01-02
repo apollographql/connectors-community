@@ -11,20 +11,18 @@ extend schema
     name: "trimblemaps"
     http: {
       baseURL: "https://singlesearch.alk.com/"
-      headers: [
-        { name: "Authorization", value: "{$config.api}"},
-      ]
+      headers: [{ name: "Authorization", value: "{$config.api}" }]
     }
   )
 
 type Address {
-  Address: String
-  Timezone: String!
+  shortFormatted: String
+  timezone: String!
 }
 
 type Geo {
-  Lat: String!
-  Lon: String!
+  lat: String!
+  long: String!
 }
 
 type Query {
@@ -38,20 +36,19 @@ type Query {
         GET: "ww/api/search?query={$args.lat},{$args.long}&matchNamedRoadsOnly=true&maxCleanupMiles=0.2"
       }
       selection: """
-        Address:Locations->first.ShortString
-        Timezone:Locations->first.TimeZone
+      shortFormatted:Locations->first.ShortString
+      timezone:Locations->first.TimeZone
       """
     )
-  locationByAddress(address: String!, city:String!, state:String!):Geo
-   @connect(
+  locationByAddress(address: String!, city: String!, state: String!): Geo
+    @connect(
       source: "trimblemaps"
       http: {
         GET: "na/api/search?query={$args.address},{$args.city}&countries=US&states={$args.state}"
       }
       selection: """
-        Lat:Locations->first.Coords.Lat
-        Lon:Locations->first.Coords.Lon
+      lat:Locations->first.Coords.Lat
+      long:Locations->first.Coords.Lon
       """
     )
-
 }

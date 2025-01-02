@@ -11,8 +11,8 @@ telemetry:
     spans: 
       mode: spec_compliant
 
-# preview_connectors:
-#   subgraphs:
-#     connector:
-#       $config:
-#         api: ${env.API_KEY}
+preview_connectors:
+  subgraphs:
+    connector:
+      $config:
+        api: ${env.API_KEY}

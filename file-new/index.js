@@ -91,7 +91,9 @@ async function main() {
     );
     const choices = schemaFiles.map((s) => s.split(".graphql")[0]);
 
-    if (choices.length > 1) {
+    if (choices.length === 1) {
+      modules.push(schemaFiles[0]);
+    }else if (choices.length > 1) {
       const schemaModulesPrompt = await prompts({
         name: "modules",
         type: "multiselect",

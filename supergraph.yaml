@@ -1,10 +1,6 @@
 federation_version: =2.10.0-preview.3
 subgraphs:
-  stripe-products:
-    routing_url: http://stripe-product
+  connector:
+    routing_url: http://connector
     schema:
-      file: ./connectors/stripe/products.graphql
-  stripe-checkout:
-    routing_url: http://stripe-checkout
-    schema:
-      file: ./connectors/stripe/checkout.graphql
+      file: connector.graphql

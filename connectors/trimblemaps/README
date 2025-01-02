@@ -19,8 +19,6 @@ Edit your `.vscode/settings.json` to include the Strapi specific keys
         "API_KEY": "",
         "APOLLO_KEY": "",
         "APOLLO_GRAPH_REF": "",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.1",
-        "APOLLO_ROVER_DEV_COMPOSITION_VERSION": "=2.10.0-preview.0",
       }
     }
   },
@@ -38,9 +36,9 @@ Example usage:
 
 ```
 query locationByAddress($address: String!, $city: String!, $state: String!) {
-  ByAddress(address: $address, city: $city, state: $state) {
-    Lat
-    Lon
+  locationByAddress(address: $address, city: $city, state: $state) {
+    lat
+    long
   }
 }
 ```
@@ -55,9 +53,9 @@ Returns:
 ```
 {
   "data": {
-    "ByAddress": {
-      "Lat": "38.897675",
-      "Lon": "-77.036547"
+    "locationByAddress": {
+      "lat": "38.897675",
+      "long": "-77.036547"
     }
   }
 }
@@ -69,9 +67,9 @@ Example usage:
 
 ```
 query addressByGeo($lat: String!, $long: String!) {
-  ByGeo(lat: $lat, long: $long) {
-    Address
-    Timezone
+  addressByGeo(lat: $lat, long: $long) {
+    shortFormatted
+    timezone
   }
 }
 ```
@@ -85,9 +83,9 @@ Example:
 Returns:
 {
   "data": {
-    "ByGeo": {
-      "Address": "2 Avenue Gustave Eiffel, 75007 Paris, Île-de-France, FR, Paris",
-      "Timezone": "GMT+1:00"
+    "addressByGeo": {
+      "shortFormatted": "2 Avenue Gustave Eiffel, 75007 Paris, Île-de-France, FR, Paris",
+      "timezone": "GMT+1:00"
     }
   }
 }
