@@ -9,6 +9,7 @@ import { faker } from "@faker-js/faker";
 import { existsSync, readFileSync } from "fs";
 import { dump, load } from "js-yaml";
 
+const routerVersion = "2.0.0-preview.3";
 const userApiKey = process.env.APOLLO_KEY;
 const graphosURL = "https://graphql.api.apollographql.com/api/graphql";
 const graphosHeaders = {
@@ -174,6 +175,9 @@ async function main() {
                   token
                 }
               }
+              ...on GraphCreationError {
+                message
+              }
             }
           }
         }
@@ -187,6 +191,10 @@ async function main() {
       },
       graphosHeaders
     );
+
+    if(createGraphResults.account.message){
+      throw new Error(`Unable to create graph in GraphOS: ${createGraphResults.account.message}`)
+    }
 
     graphId = createGraphResults.account.createGraph.id;
     graphVariant = "dev";
@@ -376,7 +384,7 @@ async function main() {
       "env": { 
         "APOLLO_KEY": "${graphApiKey}",
         "APOLLO_GRAPH_REF": "${graphId}@${graphVariant}",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.1"
+        "APOLLO_ROVER_DEV_ROUTER_VERSION": "${routerVersion}"
       }
     }
   },
@@ -423,7 +431,7 @@ async function getUserOrgId(promptForGraph = false) {
   let graphId;
   let graphVariant;
   let orgId = orgResults.me.memberships[0].account.id;
-  if (orgResults.me.memberships.length > 0) {
+  if (orgResults.me.memberships.length > 1 && orgId) {
     let membershipChoices = orgResults.me.memberships;
     if (promptForGraph)
       membershipChoices = membershipChoices.filter(

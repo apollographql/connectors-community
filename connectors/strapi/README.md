@@ -15,10 +15,6 @@ Edit your `.vscode/settings.json` to include the Strapi specific keys
       "env": { 
         "STRAPI_URL: "",
         "STRAPI_API_KEY": "",
-        "APOLLO_KEY": "",
-        "APOLLO_GRAPH_REF": "",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.0",
-        "APOLLO_ROVER_DEV_COMPOSITION_VERSION": "=2.10.0-preview.0",
       }
     }
   },
@@ -39,4 +35,3 @@ The following schema modules need to be:
 Modules:
 
 - [Roles](https://docs.strapi.io/user-docs/users-roles-permissions/configuring-end-users-roles)
-...*see left column of https://docs.stripe.com/api*...

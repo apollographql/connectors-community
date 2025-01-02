@@ -1,4 +1,4 @@
-federation_version: =2.10.0-preview.2
+federation_version: =2.10.0-preview.3
 subgraphs:
   stripe-product:
     routing_url: http://stripe-products

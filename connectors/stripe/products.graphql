@@ -29,7 +29,7 @@ type Product @key(fields:"id"){
       """
     )
 }
-type Price @key(fields: "id") {
+type Price @key(fields: "id", resolvable: false) {
   id: ID!
   active: Boolean
   currency: String
