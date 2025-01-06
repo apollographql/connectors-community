@@ -445,7 +445,7 @@ async function getUserOrgId(promptForGraph = false) {
       choices: membershipChoices.map((m) => m.account.id),
       message: promptForGraph ? "Which org would you like to use? (filtered to orgs that have graphs in them)" : "Which org would you like to use?",
     });
-    if (orgPrompt.org)
+    if (orgPrompt.org !== undefined)
       orgId = membershipChoices[orgPrompt.org].account.id;
     else userCancelled();
 
