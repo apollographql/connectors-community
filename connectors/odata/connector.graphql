@@ -28,6 +28,60 @@ type Address {
   street: String
 }
 
+type Mutation {
+  createPerson(username: ID!, firstName: String, lastName: String): Person
+    @connect(
+      source: "TripPin"
+      http: { 
+        POST: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People/"
+        body: """
+          $args {
+            Username: username
+            FirstName: firstName
+            LastName: lastName
+          }
+        """
+      }
+      selection: """
+        $.value {
+          id: UserName
+          firstName: FirstName
+          lastName: LastName
+          emails: [String]
+      """
+    )
+updatePerson(username: ID!, updates: PersonUpdates): PersonUpdatesResponse
+  @connect(
+    source: "TripPin"
+    http: { 
+      PATCH: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People('{$args.username}')"
+      body: """
+        $args {
+          Username: username
+          FirstName: updates.firstName
+          LastName: updates.lastName
+        }
+      """
+    }
+    selection: """
+      $.value {
+        success: $(true) 
+        message: $("User deleted")
+      }
+    """
+  )
+}
+
+type PersonUpdatesResponse {
+  success: Boolean
+  message: String
+}
+
+input PersonUpdates {
+  firstName: String
+  lastName: String
+}
+
 type Query {
   person(id:ID!): Person
     @connect(
