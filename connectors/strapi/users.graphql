@@ -8,7 +8,7 @@ extend schema
     name: "strapi"
     http: {
       # https://docs.strapi.io/dev-docs/api/rest#endpoints
-      baseURL: "http://localhost:1337/api"
+      baseURL: "http://localhost:1337/api" #See router.yaml for environment variable config option
       headers: [{ name: "Authorization", value: "Bearer {$config.apiKey}" }]
     }
   )
