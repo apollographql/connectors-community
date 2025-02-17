@@ -7,6 +7,7 @@ extend schema
   @source(
     name: "tmf"
     http: {
+      # https://github.com/tmforum-apis/TMF622_ProductOrder/blob/master/TMF622-ProductOrder-v4.0.0.swagger.json
       baseURL: "http://127.0.0.1:4010"
     }
   )
