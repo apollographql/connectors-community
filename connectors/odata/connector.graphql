@@ -7,6 +7,7 @@ extend schema
   @source(
   name: "TripPin"
   http: {
+    # https://www.odata.org/getting-started/basic-tutorial/
     baseURL: "https://services.odata.org/V4/"
   }
 )
@@ -57,8 +58,10 @@ type Query {
   person(id:ID!): Person
     @connect(
       source: "TripPin"
-      http: { GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People/{$args.id}" }
+      http: { GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People('{$args.id}')" }
       selection: """
+      # JSON Example Response 👇
+      # https://services.odata.org/V4/(S(upwrd1sjjfgvtldusskzpafr))/TripPinServiceRW/People('russellwhyte')
         $.value {
           id: UserName
           firstName: FirstName
@@ -81,6 +84,8 @@ type Query {
       source: "TripPin"
       http: { GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People?$top={$args.limit}&$skip={$args.offset}" }
       selection: """
+      # JSON Example Response 👇
+      # https://services.odata.org/V4/(S(upwrd1sjjfgvtldusskzpafr))/TripPinServiceRW/People
         $.value {
           id: UserName
           firstName: FirstName
