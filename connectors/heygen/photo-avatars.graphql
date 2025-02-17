@@ -205,6 +205,7 @@ type Query {
         }
       }
       """
+      entity: true
     )
 
   getPhotoAvatarGroup(groupId: ID!): [PhotoAvatar!]!
