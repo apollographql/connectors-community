@@ -3,47 +3,47 @@
 This repository is mean to be an early space for builders to share API connectors to help accelerate the community with rich starting points. There is some basic workflow functionality in this repository that can help a builder get a new project started in seconds with a fantastic developer experience. A new project created with `connectors-community` includes:
 
 - A fully working local instance with everything you need to connect to any REST API
-    - If you want to start with an existing/prebuilt connector in this repo, you can start with that schema
-    - If you want to create a new connector, the basic local instance mirrors what is in our [quickstart documentation](https://www.apollographql.com/docs/graphos/get-started/guides/rest-quickstart)
+  - If you want to start with an existing/prebuilt connector in this repo, you can start with that schema
+  - If you want to create a new connector, the basic local instance mirrors what is in our [quickstart documentation](https://www.apollographql.com/docs/graphos/get-started/guides/rest-quickstart)
 - Docker file to easily host the project
 - A graph in GraphOS created with API keys synced to your local project
 - VS Code supercharged `.vscode` folder
-    - `dev` command with hot reloading for all the related files available as a Task
-    - Custom terminal profile created that includes GraphOS API keys
-    - Recommendations for the Apollo extension
+  - `dev` command with hot reloading for all the related files available as a Task
+  - Custom terminal profile created that includes GraphOS API keys
+  - Recommendations for the Apollo extension
 - Everything configured it all just works 💪
 
-##  Prerequisites
+## Prerequisites
 
-- [Install rover v0.27.0-preview.0](https://www.apollographql.com/docs/rover/getting-started)
+- [Install rover v0.27.0-rc.0](https://www.apollographql.com/docs/rover/getting-started)
 
-```
-curl -sSL https://rover.apollo.dev/nix/v0.27.0-preview.0 | sh
+```sh
+curl -sSL https://rover.apollo.dev/nix/v0.27.0-rc.0 | sh
 ```
 
 ## Setup repo to start creating new projects
 
 1. Install packages:
 
-```
+```sh
 npm i
 ```
 
 2. Create .env file locally with your [user GraphOS API key(https://studio.apollographql.com/user-settings/api-keys)]:
 
-```
+```sh
 APOLLO_KEY=user:gh.michael-watson:867tg98076gbiln-iugiuy
 ```
 
 ## Creating a new project
 
-The wizard is designed to be a quick and easy way to setup a new local environment that is synced with GraphOS. This includes creating a new graph or connecting to an existing graph. 
+The wizard is designed to be a quick and easy way to setup a new local environment that is synced with GraphOS. This includes creating a new graph or connecting to an existing graph.
 
-```
+```sh
 npm run start
 ```
 
-This will let you select a new or existing connector that is created locally for you and wired up to a graph in GraphOS. 
+This will let you select a new or existing connector that is created locally for you and wired up to a graph in GraphOS.
 
 If you face any issues, please open up a GitHub issue with the terminal output.
 
@@ -55,8 +55,8 @@ You can place your Apollo key and graph ref in the `.vscode/setting.json` file, 
 
 The Apollo VS Code extension is setup to work with the root supergraph.yaml file. You can modify that file to design out a graph using multiple connectors, for example:
 
-```
-federation_version: =2.10.0-preview.3
+```yaml
+federation_version: =2.10.0-preview.4
 subgraphs:
   stripe-products:
     routing_url: http://stripe-product
@@ -70,7 +70,7 @@ subgraphs:
 
 You can also configure the `rover dev` Task for VS Code in the `.vscode/tasks.json` folder:
 
-```
+```json
 {
     "version": "2.0.0",
     "tasks": [{
