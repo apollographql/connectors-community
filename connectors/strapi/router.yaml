@@ -6,7 +6,7 @@ headers:
     request:
       - propagate:
           matching: .*
-preview_connectors:
+connectors:
   subgraphs:
     strapi-users:
       $config:

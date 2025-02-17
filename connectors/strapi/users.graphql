@@ -7,6 +7,7 @@ extend schema
   @source(
     name: "strapi"
     http: {
+      # https://docs.strapi.io/dev-docs/api/rest#endpoints
       baseURL: "http://localhost:1337/api" #See router.yaml for environment variable config option
       headers: [{ name: "Authorization", value: "Bearer {$config.apiKey}" }]
     }
@@ -29,6 +30,7 @@ type Query {
       http: { GET: "/users/{$args.id}?populate=role" }
       entity: true
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#get
       id
       username
       email
@@ -47,6 +49,7 @@ type Query {
         GET: "/users?pagination[start]={$args.start}&pagination[limit]={$args.limit}"
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#get-all
       id
       username
       email
@@ -61,6 +64,7 @@ type Query {
         GET: "/users?filters[username][$containsi]={$args.username}"
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest/filters-locale-publication#filtering
       $ ->first {
         id
         username
@@ -84,6 +88,7 @@ type Mutation {
       source: "strapi"
       http: { DELETE: "/users/{$args.id}" }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#delete
         success: $(true) 
         message: $("User deleted")
       """
@@ -115,6 +120,7 @@ type Mutation {
         """
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#create
       id
       username
       email
@@ -136,6 +142,7 @@ type Mutation {
         """
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#update
       id
       """
     )
@@ -152,6 +159,7 @@ type Mutation {
         """
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#update
       id
       """
     )
@@ -168,6 +176,7 @@ type Mutation {
         """
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#update
       id
       """
     )
@@ -192,6 +201,7 @@ type Mutation {
         """
       }
       selection: """
+      # https://docs.strapi.io/dev-docs/api/rest#update
       id
       username
       email

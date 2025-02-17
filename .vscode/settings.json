@@ -6,7 +6,7 @@
       "env": { 
         "APOLLO_KEY": "",
         "APOLLO_GRAPH_REF": "",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-preview.3",
+        "APOLLO_ROVER_DEV_ROUTER_VERSION": "2.0.0-rc.0",
       }
     }
   },

@@ -30,6 +30,7 @@ type Session @key(fields: "id") {
     source: "stripe"
     http: { GET: "/checkout/session/{$this.id}/line_items}" }
     selection: """
+    # https://docs.stripe.com/api/checkout/sessions/line_items
       $.data {
         price: {
           id
@@ -46,6 +47,7 @@ type Query {
       source: "stripe"
       http: { GET: "/checkout/session/{$args.id}"}
       selection: """
+      # https://docs.stripe.com/api/checkout/sessions/retrieve
         id
         subtotal: amount_subtotal
         shipping: shipping_cost
@@ -69,6 +71,7 @@ type Mutation {
         """
       }
       selection: """
+      # https://docs.stripe.com/api/checkout/sessions/create
         id
         paymentUrl: url
       """
