@@ -91,7 +91,9 @@ async function main() {
     );
     const choices = schemaFiles.map((s) => s.split(".graphql")[0]);
 
-    if (choices.length > 1) {
+    if (choices.length === 1) {
+      modules.push(schemaFiles[0]);
+    }else if (choices.length > 1) {
       const schemaModulesPrompt = await prompts({
         name: "modules",
         type: "multiselect",
@@ -443,7 +445,7 @@ async function getUserOrgId(promptForGraph = false) {
       choices: membershipChoices.map((m) => m.account.id),
       message: promptForGraph ? "Which org would you like to use? (filtered to orgs that have graphs in them)" : "Which org would you like to use?",
     });
-    if (orgPrompt.org)
+    if (orgPrompt.org !== undefined)
       orgId = membershipChoices[orgPrompt.org].account.id;
     else userCancelled();
 

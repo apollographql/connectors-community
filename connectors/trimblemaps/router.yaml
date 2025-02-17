@@ -1,5 +1,5 @@
 supergraph:
-  listen: 0.0.0.0:${env.PORT:-4000}
+  listen: 127.0.0.1:4000
 
 headers:
   all:
@@ -11,8 +11,8 @@ telemetry:
     spans: 
       mode: spec_compliant
 
-# connectors:
-#   subgraphs:
-#     connector:
-#       $config:
-#         api: ${env.API_KEY}
+connectors:
+  subgraphs:
+    connector:
+      $config:
+        api: ${env.API_KEY}
