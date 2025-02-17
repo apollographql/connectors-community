@@ -21,13 +21,6 @@ type Product @key(fields:"id"){
   active: Boolean
   name: String
   price: Price 
-    @connect(
-      source: "stripe"
-      http: { GET: "/products/{$this.id}"}
-      selection: """
-      id: default_price
-      """
-    )
 }
 type Price @key(fields: "id", resolvable: false) {
   id: ID!
@@ -42,10 +35,11 @@ type Query {
       source: "stripe"
       http: { GET: "/prices/{$args.id}"}
       selection: """
+      # https://docs.stripe.com/api/prices/retrieve
         id
         active
         currency
-        unitAmount: unit_amont
+        unitAmount: unit_amount
       """
       entity: true
     )
@@ -54,9 +48,13 @@ type Query {
       source: "stripe"
       http: { GET: "/products/{$args.id}"}
       selection: """ 
+      # https://docs.stripe.com/api/products/retrieve
         id
         active
         name
+        price: {
+          id: default_price
+        }
       """
       entity: true
     )
@@ -65,10 +63,14 @@ type Query {
       source: "stripe"
       http: { GET: "/products"}
       selection: """
+      # https://docs.stripe.com/api/products/list
         $.data {
           id
           active
           name
+          price: {
+            id: default_price
+          }
         }
       """
     )
@@ -82,6 +84,7 @@ type Mutation {
       http: {
         POST: "/products"
         body: """
+        # https://docs.stripe.com/api/products/create
         $args.input {
           id
           name

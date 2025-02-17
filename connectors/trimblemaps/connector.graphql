@@ -36,6 +36,7 @@ type Query {
         GET: "ww/api/search?query={$args.lat},{$args.long}&matchNamedRoadsOnly=true&maxCleanupMiles=0.2"
       }
       selection: """
+      # https://developer.trimblemaps.com/restful-apis/location/single-search/single-search-api/#kbd-classkbd-get-roundedgetkbd-search
       shortFormatted:Locations->first.ShortString
       timezone:Locations->first.TimeZone
       """
@@ -47,6 +48,7 @@ type Query {
         GET: "na/api/search?query={$args.address},{$args.city}&countries=US&states={$args.state}"
       }
       selection: """
+      # https://developer.trimblemaps.com/restful-apis/location/single-search/single-search-api/#kbd-classkbd-get-roundedgetkbd-search
       lat:Locations->first.Coords.Lat
       long:Locations->first.Coords.Lon
       """
