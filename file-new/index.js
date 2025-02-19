@@ -9,7 +9,6 @@ import { faker } from "@faker-js/faker";
 import { existsSync, readFileSync } from "fs";
 import { dump, load } from "js-yaml";
 
-const routerVersion = "2.0.0-preview.3";
 const userApiKey = process.env.APOLLO_KEY;
 const graphosURL = "https://graphql.api.apollographql.com/api/graphql";
 const graphosHeaders = {
@@ -385,8 +384,7 @@ async function main() {
       "args": ["-l"],
       "env": { 
         "APOLLO_KEY": "${graphApiKey}",
-        "APOLLO_GRAPH_REF": "${graphId}@${graphVariant}",
-        "APOLLO_ROVER_DEV_ROUTER_VERSION": "${routerVersion}"
+        "APOLLO_GRAPH_REF": "${graphId}@${graphVariant}"
       }
     }
   },
