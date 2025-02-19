@@ -15,11 +15,7 @@ This repository is mean to be an early space for builders to share API connector
 
 ## Prerequisites
 
-- [Install rover v0.27.0-rc.0](https://www.apollographql.com/docs/rover/getting-started)
-
-```sh
-curl -sSL https://rover.apollo.dev/nix/v0.27.0-rc.0 | sh
-```
+- [Install rover](https://www.apollographql.com/docs/rover/getting-started)
 
 ## Setup repo to start creating new projects
 
@@ -56,7 +52,7 @@ You can place your Apollo key and graph ref in the `.vscode/setting.json` file, 
 The Apollo VS Code extension is setup to work with the root supergraph.yaml file. You can modify that file to design out a graph using multiple connectors, for example:
 
 ```yaml
-federation_version: =2.10.0-preview.4
+federation_version: =2.10.0
 subgraphs:
   stripe-products:
     routing_url: http://stripe-product
