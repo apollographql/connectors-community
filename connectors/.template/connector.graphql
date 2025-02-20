@@ -5,11 +5,11 @@ extend schema
     import: ["@source", "@connect"]
   )
   @source(
-  name: "jsonPlaceholder"
-  http: {
-    baseURL: "https://jsonplaceholder.typicode.com/"
-  }
-)
+    name: "jsonPlaceholder"
+    http: {
+      baseURL: "https://jsonplaceholder.typicode.com/"
+    }
+  )
 
 type Post {
   id: ID!
