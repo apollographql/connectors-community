@@ -1,0 +1,50 @@
+# AWS REST Connector
+
+This connector currently covers the following with the AWS REST APIs:
+
+- Lambda
+  - [Invoke Function](# https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html) - requires [lambda:InvokeFunction](https://docs.aws.amazon.com/IAM/latest/UserGuide/list_awslambda.html) permission
+- DynamoDB
+  - [GetItem](https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html) - requires dynamodb:GetItem or AmazonDynamoDBReadOnlyAccess for your instance
+
+To use this, you'll need to setup your AWS authentication for Sigv4:
+
+1. AWS Access Key information:
+
+```
+[default]
+aws_access_key_id=IOUQWhjEHiFnIFJ98234
+aws_secret_access_key=7hiufIUYHD\oih983OIDJFVJ
+```
+
+or you could set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables where the Apollo Router is running
+
+2. Set the `role_arn` in the router.yaml where the role has access to the 
+
+## Additional Setup for VS Code Task runner
+
+Edit your `.vscode/settings.json` to include the Strapi specific keys
+
+```
+{
+  "terminal.integrated.profiles.osx": {
+    "graphos": {
+      "path": "zsh",
+      "args": ["-l"],
+      "env": { 
+        "API_KEY": "",
+        "APOLLO_KEY": "",
+        ...
+      }
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "graphos"
+}
+
+```
+
+Then you can execute the "Tasks: Run Task" command in VS code to execute the `rover dev` task or simply open a new terminal window in vscode with the `graphos` profile, then you can simply run `rover dev --supergraph-config supergraph.yaml --router-config router.yaml`.
+
+## Contributing
+
+You can contibute any of the AWS resources into this project. The functionality should be isolated to a `.graphql` file that represents the AWS resource.
