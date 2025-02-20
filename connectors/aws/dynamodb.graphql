@@ -1,0 +1,53 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.10"
+    import: ["@key", "@requires", "@override", "@external", "@shareable"]
+  )
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  # https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html
+  # See router.yaml for Sigv4 configuration
+  @source(
+    name: "dynamodb"
+    http: { 
+      # If you want to use multiple regions, see router.yaml for configuration based on environment variables
+      baseURL: "https://dynamodb.{aws-region:us-east-1}.amazonaws.com"
+    }
+  )
+
+
+type Product {
+  id: ID!
+  name: String
+  description: String
+  image: String
+}
+type Query {
+    product(id: ID!): Product
+      @connect(
+        source: "dynamodb"
+        http: {
+          POST: "/"
+          body: """
+          TableName: $('product-catalog')
+          Key: {
+            id: {
+              S: $args.id
+            }
+          }
+          """
+          headers: [{ name: "X-Amz-Target", value: "DynamoDB_20120810.GetItem" }]
+        }
+        selection: """
+        $.Item {
+          id: id.S
+          name: name.S
+          description: description.S
+          image: url.S
+        }
+        """
+        entity: true
+      )
+}

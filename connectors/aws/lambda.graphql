@@ -1,0 +1,79 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.10"
+    import: ["@key", "@requires", "@override", "@external", "@shareable"]
+  )
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  # https://docs.aws.amazon.com/lambda/latest/api
+  # See router.yaml for Sigv4 configuration
+  @source(
+    name: "lambda"
+    # If you want to use multiple regions, see router.yaml for configuration based on environment variables
+    http: { baseURL: "https://lambda.{aws-region:us-east-1}.amazonaws.com" }
+  )
+
+
+type Product {
+  id: ID!
+  name: String
+  description: String
+  image: String
+  price: Price
+    @connect(
+      source: "lambda"
+      http: {
+        POST: "/2015-03-31/functions/{functionName:product-price}/invocations"
+        body: """
+        product_id: $this.id
+        """
+      }
+      selection: """
+      # JSON Example Response 👇
+      # https://github.com/apollographql/connectors-community/tree/main/connectors/aws/json-responses/product-price.json
+      amount: default_price
+      isActive: is_active
+      currency
+      recurringInterval: recurring.interval -> match(
+        [0,"ONE_TIME"],
+        [1,"DAILY"],
+        [2,"MONTHLY"],
+        [3,"ANNUALLY"],
+      )
+      recurringCount: recurring.interval_count
+      """
+    )
+}
+type Price {
+  amount: Float
+  isActive: Boolean
+  currency: String
+  recurringInterval: RecurringInterval
+  recurringCount: Int
+}
+enum RecurringInterval {
+  ONE_TIME
+  DAILY
+  MONTHLY
+  ANNUALLY
+}
+type Query {
+  products: [Product]
+    # https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html
+    @connect(
+      source: "lambda"
+      http: { POST: "/2015-03-31/functions/{functionName:products}/invocations" }
+      selection: """
+      # JSON Example Response 👇
+      # https://github.com/apollographql/connectors-community/tree/main/connectors/aws/json-responses/products.json
+      $.body {
+        id
+        name
+        description
+        image
+      }
+      """
+    )
+}
