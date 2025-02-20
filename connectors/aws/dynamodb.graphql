@@ -26,6 +26,7 @@ type Product {
 }
 type Query {
     product(id: ID!): Product
+    # https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html
       @connect(
         source: "dynamodb"
         http: {
