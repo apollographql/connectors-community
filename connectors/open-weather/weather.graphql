@@ -1,69 +1,74 @@
-
 # These are the necessary federation and connector directives you will be using
 extend schema
-  @link(
-    url: "https://specs.apollo.dev/federation/v2.10"
-    import: ["@key"]
-  )
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key"])
   @link(
     url: "https://specs.apollo.dev/connect/v0.1"
     import: ["@connect", "@source"]
   )
-# A @source directive defines a shared data source for multiple connectors.
+  # A @source directive defines a shared data source for multiple connectors.
   @source(
     name: "openweather"
-    http: { baseURL: "https://api.openweathermap.org/data/2.5/weather" }
+    http: { baseURL: "https://api.openweathermap.org" }
   )
 
-type WeatherResponse {
-  # latitude
-  lat: Float!
-  # longitude
-  lon: Float!
-  # Time of data calculation, unix, UTC
-  calculationTime: Int
-  # Shift in seconds from UTC
-  timeZone: Int
-  # Current Weather
-  weather: Weather
-}
 
 type Weather {
-  id: ID!
-  # The grouping of weather parameters (rain, snow, cloudy, etc.)
+  "latitude"
+  lat: Float!
+  "longitude"
+  long: Float!
+  "Time of data calculation, unix, UTC"
+  calculationTime: Int
+  "Shift in seconds from UTC"
+  timeZone: Int
+  "The grouping of weather parameters (rain, snow, cloudy, etc.)"
   type: String
-  # The weather condition within the type of weather
+  "The weather condition within the type of weather"
   description: String
-  # Current temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  "Current temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit"
   temperature: Float
-  # Temperature that accounts for human perception of the weather. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  "Temperature that accounts for human perception of the weather. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit"
   feelsLike: Float
-    # Minimal observed temperature (within large megalopolises and uran areas). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  "Minimal observed temperature (within large megalopolises and uran areas). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit"
   minTemp: Float
-  # Maximum observed temperature (within large megalopolises and uran areas). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  "Maximum observed temperature (within large megalopolises and uran areas). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit"
   maxTemp: Float
-  # Atmospheric pressure on the sea level, hPa
+  "Atmospheric pressure on the sea level, hPa"
   pressure: Int
-  # Atmospheric pressure on the sea level, hPa
+  "Atmospheric pressure on the sea level, hPa"
   seaLevelPressure: Int
-  # Atmospheric pressure on the ground level, hPa
+  "Atmospheric pressure on the ground level, hPa"
   groundLevelPressure: Int
-  # Humidity %
+  "Humidity %"
   humidity: Int
-  # Cloudiness %
+  "Cloudiness %"
   cloudiness: Int
-  # Rain mm/h
+  "Rain mm/h"
   rain: Float
-  # Snow mm/h
+  "Snow mm/h"
   snow: Float
-  # Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour
+  "Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour"
   windSpeed: Float
-  # Wind direction, degrees (meteorological)
+  "Wind direction, degrees (meteorological)"
   windDirection: Int
-  # Wind gust. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour
+  "Wind gust. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour"
   windGust: Float
-  # Visibility, meter
+  "Visibility, meter"
   visibility: Int
+}
+
+type Geo {
+  # name of the locale
+  name: String!
+  # Latitude of the locale
+  lat: Float!
+  # Longitude of the locale
+  long: Float!
+  # Country of the locale
+  country: String
+  # State of the locale
+  state: String
+  weather: Weather
 }
 
 input getWeatherInput {
@@ -77,38 +82,66 @@ input getWeatherInput {
 }
 
 type Query {
-  getCurrentWeather(input: getWeatherInput!): WeatherResponse
-    # A @connect directive defines the API data source of a GraphQL schema field.
+  currentWeatherByLatLong(
+    lat: Float!
+    long: Float!
+    appid: String! 
+    units: String = "standard" 
+    lang: String = "en"
+  ): Weather
     @connect(
       source: "openweather"
-      http: { GET: "?lat={$args.input.lat}&lon={$args.input.lon}&appid={$args.input.appid}&units={$args.input.units}&lang={$args.input.lang}" }
+      http: {
+        GET: "/data/2.5/weather?lat={$args.lat}&lon={$args.long}&appid={$args.appid}&units={$args.units}&lang={$args.lang}"
+      }
       selection: """
-      $.coord {
-        lat
-        lon
-      }
-      weather: {
-        id: $.weather->first.id
-        type: $.weather->first.main
-        description: $.weather->first.description
-        temperature: $.main.temp
-        feelsLike: $.main.feels_like
-        minTemp: $.main.temp_min
-        maxTemp: $.main.temp_max
-        pressure: $.main.pressure
-        seaLevelPressure: $.main.sea_level
-        groundLevelPressure:$.main.grnd_level
-        humidity: $.main.humidity
-        cloudiness: $.clouds.all
-        rain: $.rain."1h"
-        snow: $.snow."1h"
-        windSpeed: $.wind.speed
-        windDirection: $.wind.deg
-        windGust: $.wind.gust
-        visibility
-      }
+      type: $.weather->first.main
+      description: $.weather->first.description
+      temperature: $.main.temp
+      feelsLike: $.main.feels_like
+      minTemp: $.main.temp_min
+      maxTemp: $.main.temp_max
+      pressure: $.main.pressure
+      seaLevelPressure: $.main.sea_level
+      groundLevelPressure:$.main.grnd_level
+      humidity: $.main.humidity
+      cloudiness: $.clouds.all
+      rain: $.rain."1h"
+      snow: $.snow."1h"
+      windSpeed: $.wind.speed
+      windDirection: $.wind.deg
+      windGust: $.wind.gust
+      visibility
       calculationTime: dt
       timeZone: timezone
+      """
+      entity: true
+    )
+
+  # can add optional limit parameter in the future, currently returns 1 Geo by default
+  currentWeatherBySearch(
+    query: String!
+    appid: String!
+    appid: String! 
+    units: String = "standard" 
+    lang: String = "en"
+  ): Geo
+    @connect(
+      source: "openweather"
+      http: { GET: "/geo/1.0/direct?q={$args.query}&appid={$args.appid}" }
+      selection: """
+      name
+      lat
+      long
+      country
+      state
+      weather: {
+        lat
+        long
+        appid: $args.appid
+        units: $args.units
+        lang: $args.lang
+      }
       """
     )
 }
