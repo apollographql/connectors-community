@@ -1,6 +1,6 @@
-# {TEMPLATE}} REST Connector
+# Zendesk REST Connector
 
-This connector currently covers the XXX object in XXX API. To use this, you'll need to add a `API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
+This connector currently covers the Orders and LineItem objects in the [Zendesk Sales CRM REST API](https://developer.zendesk.com/api-reference/sales-crm). To use this, you'll need to add a `API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
 
 ## Additional Setup for VS Code Task runner
 
@@ -33,4 +33,4 @@ The following schema modules need to include:
 1. A schema designed for that portion of the rest API as a new `.graphql` file
 2. Additions to the `router.yaml` and `supergraph.yaml` files
 
-See [developer documentation]() navigation panel for other modules that can be implemented. You can use the current modules in this folder as examples to work with. 
+See [developer documentation](https://developer.zendesk.com/api-reference/sales-crm) navigation panel for other modules that can be implemented. You can use the current modules in this folder as examples to work with. 
