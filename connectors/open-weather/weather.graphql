@@ -1,0 +1,114 @@
+
+# These are the necessary federation and connector directives you will be using
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.10"
+    import: ["@key"]
+  )
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@connect", "@source"]
+  )
+# A @source directive defines a shared data source for multiple connectors.
+  @source(
+    name: "openweather"
+    http: { baseURL: "https://api.openweathermap.org/data/2.5/weather" }
+  )
+
+type WeatherResponse {
+  # latitude
+  lat: Float!
+  # longitude
+  lon: Float!
+  # Time of data calculation, unix, UTC
+  calculationTime: Int
+  # Shift in seconds from UTC
+  timeZone: Int
+  # Current Weather
+  weather: Weather
+}
+
+type Weather {
+  id: ID!
+  # The grouping of weather parameters (rain, snow, cloudy, etc.)
+  type: String
+  # The weather condition within the type of weather
+  description: String
+  # Current temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  temperature: Float
+  # Temperature that accounts for human perception of the weather. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  feelsLike: Float
+    # Minimal observed temperature (within large megalopolises and uran areas). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  minTemp: Float
+  # Maximum observed temperature (within large megalopolises and uran areas). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit
+  maxTemp: Float
+  # Atmospheric pressure on the sea level, hPa
+  pressure: Int
+  # Atmospheric pressure on the sea level, hPa
+  seaLevelPressure: Int
+  # Atmospheric pressure on the ground level, hPa
+  groundLevelPressure: Int
+  # Humidity %
+  humidity: Int
+  # Cloudiness %
+  cloudiness: Int
+  # Rain mm/h
+  rain: Float
+  # Snow mm/h
+  snow: Float
+  # Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour
+  windSpeed: Float
+  # Wind direction, degrees (meteorological)
+  windDirection: Int
+  # Wind gust. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour
+  windGust: Float
+  # Visibility, meter
+  visibility: Int
+}
+
+input getWeatherInput {
+  lat: Float!
+  lon: Float!
+  appid: String!
+  # Defaults to `standard`, options are `standard`, `metric`, `imperial`
+  units: String = "standard"
+  # Defaults to `en`, see https://openweathermap.org/current#multi
+  lang: String = "en"
+}
+
+type Query {
+  getCurrentWeather(input: getWeatherInput!): WeatherResponse
+    # A @connect directive defines the API data source of a GraphQL schema field.
+    @connect(
+      source: "openweather"
+      http: { GET: "?lat={$args.input.lat}&lon={$args.input.lon}&appid={$args.input.appid}&units={$args.input.units}&lang={$args.input.lang}" }
+      selection: """
+      $.coord {
+        lat
+        lon
+      }
+      weather: {
+        id: $.weather->first.id
+        type: $.weather->first.main
+        description: $.weather->first.description
+        temperature: $.main.temp
+        feelsLike: $.main.feels_like
+        minTemp: $.main.temp_min
+        maxTemp: $.main.temp_max
+        pressure: $.main.pressure
+        seaLevelPressure: $.main.sea_level
+        groundLevelPressure:$.main.grnd_level
+        humidity: $.main.humidity
+        cloudiness: $.clouds.all
+        rain: $.rain."1h"
+        snow: $.snow."1h"
+        windSpeed: $.wind.speed
+        windDirection: $.wind.deg
+        windGust: $.wind.gust
+        visibility
+      }
+      calculationTime: dt
+      timeZone: timezone
+      """
+    )
+}
