@@ -1,6 +1,6 @@
 federation_version: =2.10.0
 subgraphs:
- dhl-tracking:
-    routing_url: http://dhl-tracking
+  dhl-tracking:
+    routing_url: http://dhl
     schema:
       file: dhl-tracking.graphql

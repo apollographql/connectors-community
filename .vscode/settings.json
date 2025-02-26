@@ -4,6 +4,7 @@
       "path": "zsh",
       "args": ["-l"],
       "env": {
+        "DHL_API_KEY": "",
         "APOLLO_KEY": "",
         "APOLLO_GRAPH_REF": ""
       }
