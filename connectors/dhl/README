@@ -1,0 +1,37 @@
+# DHL REST Connector
+
+This connector currently covers the [Tracking object](https://developer.dhl.com/api-reference/shipment-tracking) in the [DHL REST API](https://developer.dhl.com/). To use this, you'll need to add a `DHL_API_KEY` in your environment variables when running `rover` or the `router` with the config files in this folder.
+
+## Additional Setup for VS Code Task Runner
+
+Edit your `.vscode/settings.json` to include the DHL-specific keys:
+
+```json
+{
+  "terminal.integrated.profiles.osx": {
+    "graphos": {
+      "path": "zsh",
+      "args": ["-l"],
+      "env": { 
+        "DHL_API_KEY": "",
+        "APOLLO_KEY": "",
+        ...
+      }
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "graphos"
+}
+
+
+---
+
+Then you can execute the "Tasks: Run Task" command in VS code to execute the `rover dev` task or simply open a new terminal window in vscode with the `graphos` profile, then you can simply run `rover dev --supergraph-config supergraph.yaml --router-config router.yaml`.
+
+## Contributing
+
+The following schema modules need to include:
+
+1. A schema designed for that portion of the rest API as a new `.graphql` file
+2. Additions to the `router.yaml` and `supergraph.yaml` files
+
+You can view the DHL API Catalog for other modules to implement. [https://developer.dhl.com/api-reference/shipment-tracking#get-started-section/]
