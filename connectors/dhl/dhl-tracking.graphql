@@ -35,7 +35,6 @@ type TrackingEvent {
   location: Location
   statusCode: String
   status: String
-  description: String
 }
 
 type Query {
@@ -44,41 +43,31 @@ type Query {
       source: "dhl-tracking"
       http: { GET: "/shipments?trackingNumber={$args.trackingNumber}" }
       selection: """
-        shipments[0] {
-          id
-          status {
-            status
-            statusCode
-            timestamp
-          }
+        shipments->first {
+          trackingNumber: id
+          status: status.status
+          estimatedDeliveryDate
           estimatedTimeOfDelivery
           service
-          origin {
-            address {
-              countryCode
-              postalCode
-              addressLocality
-            }
+          origin: $.origin.address {
+            countryCode
+            postalCode
+            addressLocality
           }
-          destination {
-            address {
-              countryCode
-              postalCode
-              addressLocality
-            }
+          destination: $.destination.address {
+            countryCode
+            postalCode
+            addressLocality
           }
           events {
             timestamp
-            status
-            statusCode
-            description
-            location {
-              address {
-                countryCode
-                postalCode
-                addressLocality
-              }
+            location: $.location.address {
+              countryCode
+              postalCode
+              addressLocality
             }
+            statusCode
+            status
           }
         }
       """

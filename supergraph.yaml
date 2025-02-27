@@ -3,4 +3,4 @@ subgraphs:
  dhl-tracking:
     routing_url: http://dhl-tracking
     schema:
-      file: dhl-tracking.graphql
+      file: ./connectors/dhl/dhl-tracking.graphql
