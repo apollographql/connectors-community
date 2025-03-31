@@ -25,7 +25,8 @@ type Product {
     @connect(
       source: "lambda"
       http: {
-        POST: "/2015-03-31/functions/{functionName:product-price}/invocations"
+        #"/2015-03-31/functions/{functionName}/invocations"
+        POST: "/2015-03-31/functions/product-price/invocations"
         body: """
         product_id: $this.id
         """
@@ -64,7 +65,8 @@ type Query {
     # https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html
     @connect(
       source: "lambda"
-      http: { POST: "/2015-03-31/functions/{functionName:products}/invocations" }
+      # /2015-03-31/functions/{functionName}/invocations
+      http: { POST: "/2015-03-31/functions/products/invocations" }
       selection: """
       # JSON Example Response 👇
       # https://github.com/apollographql/connectors-community/tree/main/connectors/aws/json-responses/products.json
