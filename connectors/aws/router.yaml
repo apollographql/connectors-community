@@ -22,9 +22,9 @@ authentication:
             profile_name: "default" #name of profile in .aws/configuration file
             region: "awsRegion:us-east-1"
             service_name: "lambda"
-            assume_role:
-              role_arn: "arn:aws:iam::{accountId}:role/{roleName}"
-              session_name: "connector"
+            # assume_role:
+            #   role_arn: "arn:aws:iam::{accountId}:role/{roleName}"
+            #   session_name: "connector"
       connector.dynamodb:
         aws_sig_v4:
           default_chain:
@@ -33,9 +33,9 @@ authentication:
             profile_name: "default" #name of profile in .aws/configuration file
             region: "awsRegion:us-east-1"
             service_name: "dynamodb"
-            assume_role:
-              role_arn: "arn:aws:iam::{accountId}:role/{roleName}"
-              session_name: "connector"
+            # assume_role:
+            #   role_arn: "arn:aws:iam::{accountId}:role/{roleName}"
+            #   session_name: "connector"
 
 ## If you want to override the url to use dynamic urls based on environment variables
 # connectors:

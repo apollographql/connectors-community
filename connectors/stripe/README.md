@@ -2,6 +2,39 @@
 
 This connector currently covers a portion of the Stripe REST API. To use this, you'll need to add a `STRIPE_API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
 
+## Getting Started 
+
+1. If you haven't already, [create a new graph in GraphOS](https://www.apollographql.com/docs/graphos/get-started/guides/rest#step-1-set-up-your-graphql-api). Following the "Set up your local development environment" modal:
+  a. Copy the `supergraph.yaml` and `router.yaml` files from this folder
+  b. Copy the schema files you want to use for this connector (i.e. `checkouts.graphql` and/or `products.graphql`) - *Note - if you only want to use products or checkout, you'll need to modify the `sueprgraph.yaml` file to only contain the schema file you want to use.*
+2. Grab your Stripe API key and set it as an environment variable for your terminal:
+
+```
+export STRIPE_API_KEY=....
+```
+
+3. Run `rover dev` to start the local development session:
+
+```
+APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••••••••• \
+  APOLLO_GRAPH_REF=My-Graph-s1ff1u@main \
+  rover dev --supergraph-config supergraph.yaml --router-config router.yaml
+```
+
+Now you’re all set! Open up http://localhost:4000 to query your graph using Apollo Sandbox.
+
+### Adding to an existing graph in GraphOS
+
+Simply publish the schema files to your graph ref like you would with any subgraph:
+
+```
+APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••••••••• \
+  rover subgraph publish My-Graph-s1ff1u@main --name products --schema products.graphql --routing-url http://products
+
+APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••••••••• \
+  rover subgraph publish My-Graph-s1ff1u@main --name checkout --schema checkout.graphql --routing-url http://checkout
+```
+
 ## Additional Setup for VS Code Task runner
 
 Edit your `.vscode/settings.json` to include the Strapi specific keys
