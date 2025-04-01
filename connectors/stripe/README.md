@@ -6,7 +6,7 @@ This connector currently covers a portion of the [Stripe REST API](https://docs.
 
 To use the connector, you need a [Stripe API key](https://docs.stripe.com/keys).
 
-## Getting Started 
+## Getting started 
 
 1. If you haven't already, [create a new graph in GraphOS](https://www.apollographql.com/docs/graphos/get-started/guides/rest#step-1-set-up-your-graphql-api). Once you get to the **Set up your local development environment** modal in the [Create a graph](https://www.apollographql.com/docs/graphos/get-started/guides/rest#create-a-graph) section:
     - Copy the `supergraph.yaml` and `router.yaml` files from this folder instead of the `supergraph.yaml` provided by the modal.
@@ -40,9 +40,9 @@ APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••
   rover subgraph publish My-Graph-s1ff1u@main --name checkout --schema checkout.graphql --routing-url http://checkout
 ```
 
-## Additional Setup for VS Code Task runner
+## Additional setup for VS Code task runner
 
-Edit your `.vscode/settings.json` to include these Stripe-specific keys:
+Edit your `.vscode/settings.json` to include the following keys:
 
 ```
 {
@@ -50,8 +50,10 @@ Edit your `.vscode/settings.json` to include these Stripe-specific keys:
     "graphos": {
       "path": "zsh",
       "args": ["-l"],
-      "env": { 
-        "STRIPE_API_KEY": "",
+      "env": {
+        "API_KEY": "",
+        "APOLLO_KEY": "",
+        ...
       }
     }
   },
