@@ -83,7 +83,7 @@ These prerequisites apply if you want to use the `lambda.graphql` schema file as
       rover dev --supergraph-config supergraph.yaml --router-config router.yaml
     ```
 
-Now you’re all set! Open up http://localhost:4000 to query your graph using Apollo Sandbox.
+You’re all set! Open up http://localhost:4000 to query your graph using Apollo Sandbox.
 
 ### Adding to an existing graph in GraphOS
 

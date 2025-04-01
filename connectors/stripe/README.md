@@ -26,7 +26,7 @@ To use the connector, you need a [Stripe API key](https://docs.stripe.com/keys).
       rover dev --supergraph-config supergraph.yaml --router-config router.yaml
     ```
 
-Now you’re all set! Open up http://localhost:4000 to query your graph using Apollo Sandbox.
+You’re all set! Open up http://localhost:4000 to query your graph using Apollo Sandbox.
 
 ### Adding to an existing graph in GraphOS
 
@@ -42,7 +42,7 @@ APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••
 
 ## Additional setup for VS Code task runner
 
-Edit your `.vscode/settings.json` to include the following keys:
+Edit your `.vscode/settings.json` to include the following Stripe-specific key:
 
 ```
 {
@@ -51,8 +51,7 @@ Edit your `.vscode/settings.json` to include the following keys:
       "path": "zsh",
       "args": ["-l"],
       "env": {
-        "API_KEY": "",
-        "APOLLO_KEY": "",
+        "STRIPE_API_KEY": "",
         ...
       }
     }
