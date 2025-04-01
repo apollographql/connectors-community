@@ -79,3 +79,5 @@ To contribute them, make sure to:
 
 1. Add a schema designed for the module as a new `.graphql` file.
 2. Update the `router.yaml` and `supergraph.yaml` files accordingly.
+
+See [REST API reference](https://docs.stripe.com/api) for other modules that can be implemented. You can use the current modules in this folder as examples to work with. 

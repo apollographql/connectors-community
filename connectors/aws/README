@@ -115,7 +115,6 @@ Edit your `.vscode/settings.json` to include the following keys:
   },
   "terminal.integrated.defaultProfile.osx": "graphos"
 }
-
 ```
 
 Once you've set this up, you can execute the `Tasks: Run Task` command in VS Code to run the `rover dev` task.
@@ -123,4 +122,4 @@ Alternatively, you can open a new terminal window in VS Code with the `graphos` 
 
 ## Contributing
 
-You can contibute any AWS resources to this project. The functionality should be isolated to a `.graphql` file that represents the AWS resource.
+You can contribute any AWS resources to this project. The functionality should be isolated to a `.graphql` file that represents the AWS resource. You can use the current modules in this folder as examples to work with. 
