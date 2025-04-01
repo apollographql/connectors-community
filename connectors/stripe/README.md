@@ -1,31 +1,36 @@
 # Stripe REST Connector
 
-This connector currently covers a portion of the Stripe REST API. To use this, you'll need to add a `STRIPE_API_KEY` in your environment variables then running `rover` or the `router` with the config files in this folder. 
+This connector currently covers a portion of the [Stripe REST API](https://docs.stripe.com/api).
+
+## Prerequisites
+
+To use the connector, you need a [Stripe API key](https://docs.stripe.com/keys).
 
 ## Getting Started 
 
-1. If you haven't already, [create a new graph in GraphOS](https://www.apollographql.com/docs/graphos/get-started/guides/rest#step-1-set-up-your-graphql-api). Following the "Set up your local development environment" modal:
-  a. Copy the `supergraph.yaml` and `router.yaml` files from this folder
-  b. Copy the schema files you want to use for this connector (i.e. `checkouts.graphql` and/or `products.graphql`) - *Note - if you only want to use products or checkout, you'll need to modify the `sueprgraph.yaml` file to only contain the schema file you want to use.*
-2. Grab your Stripe API key and set it as an environment variable for your terminal:
+1. If you haven't already, [create a new graph in GraphOS](https://www.apollographql.com/docs/graphos/get-started/guides/rest#step-1-set-up-your-graphql-api). Once you get to the **Set up your local development environment** modal in the [Create a graph](https://www.apollographql.com/docs/graphos/get-started/guides/rest#create-a-graph) section:
+    - Copy the `supergraph.yaml` and `router.yaml` files from this folder instead of the `supergraph.yaml` provided by the modal.
+    - Instead of downloading the example schema provided by the modal, copy the schema files you want to use for this connector—`checkouts.graphql` and/or `products.graphql`
+      - *Note: If you only want to one of the schema files, you need to modify the `supergraph.yaml` file to only contain the respective schema file .*
+1. Grab your Stripe API key and set it as an environment variable for your terminal:
 
-```
-export STRIPE_API_KEY=....
-```
+    ```
+    export STRIPE_API_KEY=....
+    ```
 
-3. Run `rover dev` to start the local development session:
+1. Run `rover dev` to start the local development session:
 
-```
-APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••••••••• \
-  APOLLO_GRAPH_REF=My-Graph-s1ff1u@main \
-  rover dev --supergraph-config supergraph.yaml --router-config router.yaml
-```
+    ```
+    APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••••••••• \
+      APOLLO_GRAPH_REF=My-Graph-s1ff1u@main \
+      rover dev --supergraph-config supergraph.yaml --router-config router.yaml
+    ```
 
 Now you’re all set! Open up http://localhost:4000 to query your graph using Apollo Sandbox.
 
 ### Adding to an existing graph in GraphOS
 
-Simply publish the schema files to your graph ref like you would with any subgraph:
+To add these connectors to an existing graph, publish the schema files to your graph ref using `rover subgraph publish`:
 
 ```
 APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••••••••• \
@@ -37,7 +42,7 @@ APOLLO_KEY=service:My-Graph-s1ff1u:•••••••••••••••
 
 ## Additional Setup for VS Code Task runner
 
-Edit your `.vscode/settings.json` to include the Strapi specific keys
+Edit your `.vscode/settings.json` to include these Stripe-specific keys:
 
 ```
 {
@@ -55,16 +60,12 @@ Edit your `.vscode/settings.json` to include the Strapi specific keys
 
 ```
 
-Then you can execute the "Tasks: Run Task" command in VS code to execute the `rover dev` task or simply open a new terminal window in vscode with the `graphos` profile, then you can simply run `rover dev --supergraph-config supergraph.yaml --router-config router.yaml`.
+Once you've set this up, you can execute the `Tasks: Run Task` command in VS Code to run the `rover dev` task.
+Alternatively, you can open a new terminal window in VS Code with the `graphos` profile, then run `rover dev --supergraph-config supergraph.yaml --router-config router.yaml`.
 
 ## Contributing
 
-The following schema modules need to be:
-
-1. A schema designed for that portion of the rest API as a new `.graphql` file
-2. Additions to the `router.yaml` and `supergraph.yaml` files
-
-Modules:
+The following schema modules can be added to this connector:
 
 - [Core](https://docs.stripe.com/api/)
 - [Payment Methods](https://docs.stripe.com/api/balance)
@@ -72,3 +73,8 @@ Modules:
 - [Payment Link](https://docs.stripe.com/api/payment-link)
 - [Billing](https://docs.stripe.com/api/payment-link)
 ...*see left column of https://docs.stripe.com/api*...
+
+To contribute them, make sure to:
+
+1. Add a schema designed for the module as a new `.graphql` file.
+2. Update the `router.yaml` and `supergraph.yaml` files accordingly.
