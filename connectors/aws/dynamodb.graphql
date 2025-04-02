@@ -17,14 +17,60 @@ extend schema
     }
   )
 
-
 type Product {
   id: ID!
   name: String
   description: String
   image: String
 }
+type ProductConnection {
+  pageInfo: PageInfo
+  items: [Product]
+}
+type PageInfo {
+  count: Int
+  total: Int
+  next: String
+}
 type Query {
+  products(cursor: String = "", limit: Int = 5): ProductConnection
+    @connect(
+      source: "dynamodb"
+      http: {
+        POST: "/"
+        body: """
+        $args.cursor->match(
+          [null, $({
+            TableName: $('product-catalog'),
+            Limit: $args.limit,
+          })],
+          ["", $({
+            TableName: $('product-catalog'),
+            Limit: $args.limit,
+          })],
+          [@, $({
+            TableName: $('product-catalog'),
+            Limit: $args.limit,
+            ExclusiveStartKey: { id: { S: @ } }
+          })]
+        )
+        """
+        headers: [{ name: "X-Amz-Target", value: "DynamoDB_20120810.Scan" }]
+      }
+      selection: """
+      pageInfo: {
+        count: Count
+        total: ScannedCount
+        next: LastEvaluatedKey.id.S
+      }
+      items: $.Items {
+        id: id.S
+        name: name.S
+        description: description.S
+        image: url.S
+      }
+      """
+    )
     product(id: ID!): Product
     # https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html
       @connect(
