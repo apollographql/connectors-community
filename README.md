@@ -1,6 +1,6 @@
 # Apollo Connectors Community
 
-This repository is mean to be an early space for builders to share API connectors to help accelerate the community with rich starting points. There is some basic workflow functionality in this repository that can help a builder get a new project started in seconds with a fantastic developer experience. A new project created with `connectors-community` includes:
+This repository is meant to be an early space for builders to share API connectors to help accelerate the community with rich starting points. There is some basic workflow functionality in this repository that can help a builder get a new project started in seconds with a fantastic developer experience. A new project created with `connectors-community` includes:
 
 - A fully working local instance with everything you need to connect to any REST API
   - If you want to start with an existing/prebuilt connector in this repo, you can start with that schema
