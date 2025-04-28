@@ -16,7 +16,7 @@ extend schema
     }
 )
 
-type Price @key(fields: "id") {
+type Price @key(fields: "id", resolvable: false) {
   id: ID! @external
 }
 
