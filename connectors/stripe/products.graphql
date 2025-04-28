@@ -1,5 +1,5 @@
 extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires", "@shareable"])
   @link(
     url: "https://specs.apollo.dev/connect/v0.1"
     import: ["@source", "@connect"]
@@ -28,7 +28,15 @@ type Price @key(fields: "id", resolvable: false) {
   currency: String
   unitAmount: Float
 }
-
+type PageInfo @shareable{
+  hasMore: Boolean
+  startCursor: String
+  endCursor: String
+}
+type ProductConnection {
+  pageInfo: PageInfo
+  items: [Product]
+}
 type Query {
   price (id: ID!): Price 
     @connect(
@@ -58,13 +66,24 @@ type Query {
       """
       entity: true
     )
-  products: [Product] 
+  products(limit: Int = 10, cursor: String): ProductConnection
     @connect(
       source: "stripe"
-      http: { GET: "/products"}
+      http: { GET: "/products?limit={$args.limit}&starting_after={$args.cursor}"}
       selection: """
       # https://docs.stripe.com/api/products/list
-        $.data {
+        pageInfo: {
+          hasMore: has_more
+          startCursor: has_more->match(
+            ["true", data.first->id],
+            ["false", null]
+          )
+          endCursor: has_more->match(
+            ["true", data.last->id],
+            ["false", null]
+          )
+        }
+        items: $.data {
           id
           active
           name
