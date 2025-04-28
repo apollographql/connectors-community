@@ -1,10 +1,10 @@
 federation_version: =2.10.0
 subgraphs:
-  lambda:
+  aws-lambda:
     routing_url: http://lambda
     schema:
       file: lambda.graphql
-  dynamodb:
+  aws-dynamodb:
     routing_url: http://dynamodb
     schema:
       file: dynamodb.graphql

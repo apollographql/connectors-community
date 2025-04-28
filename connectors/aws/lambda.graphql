@@ -12,69 +12,159 @@ extend schema
   @source(
     name: "lambda"
     # If you want to use multiple regions, see router.yaml for configuration based on environment variables
-    http: { baseURL: "https://lambda.{aws-region:us-east-1}.amazonaws.com" }
+    http: { baseURL: "https://lambda.us-east-1.amazonaws.com" }
   )
 
-
-type Product {
-  id: ID!
+type LambdaFunction {
   name: String
+  configuration: LambdaFunctionConfiguration
+  concurrency: Int
+  code: LambdaFunctionCode
+}
+type LambdaFunctionCode {
+  sourceKMSKeyArn: String
+  resolvedImageUri: String
+  repositoryType: String
+  error: String
+  imageUri: String
+  location: String
+}
+input LambdaFunctionCodeInput {
+  imageUri: String
+  zipFile: String
+  s3Bucket: String
+  s3Key: String
+  s3ObjectVersion: String
+  publish: Boolean
+}
+type LambdaFunctionConfiguration {
   description: String
-  image: String
-  price: Price
+  tracingConfigMode: String
+  revisionId: String
+  lastModified: String
+  runtime: String
+  version: String
+  packageType: String
+  lastUpdateSuccess: Boolean
+  arn: String
+  kmsKeyArn: String
+  memorySize: Int
+  timeout: Int
+  handler: String
+  codeSha256: String
+  role: String
+  state: String
+  stateReason: String
+  architectures: [String]
+}
+type Mutation {
+  createFunction(
+    name: String!
+    roleArn: String!
+    code: LambdaFunctionCodeInput!
+  ): LambdaFunction
     @connect(
       source: "lambda"
-      http: {
-        #"/2015-03-31/functions/{functionName}/invocations"
-        POST: "/2015-03-31/functions/product-price/invocations"
+      http: { 
+        POST: "/2015-03-31/functions" 
         body: """
-        product_id: $this.id
+        FunctionName: $args.name
+        Role: $args.roleArn
+        Code: $args.code
         """
       }
       selection: """
-      # JSON Example Response 👇
-      # https://github.com/apollographql/connectors-community/tree/main/connectors/aws/json-responses/product-price.json
-      amount: default_price
-      isActive: is_active
-      currency
-      recurringInterval: recurring.interval -> match(
-        [0,"ONE_TIME"],
-        [1,"DAILY"],
-        [2,"MONTHLY"],
-        [3,"ANNUALLY"],
-      )
-      recurringCount: recurring.interval_count
+      name: FunctionName
+      configuration: {
+        description: Description
+        tracingConfigMode: TracingConfig.Mode
+        revisionId: RevisionId
+        lastModified: LastModified
+        runtime: Runtime
+        version: Version
+        packageType: PackageType
+        arn: FunctionArn
+        kmsKeyArn: KMSKeyArn
+        memorySize: MemorySize
+        timeout: Timeout
+        handler: Handler
+        codeSha256: CodeSha256
+        role: Role
+        state: State
+        stateReason: StateReasonCode
+        architectures: Architectures
+      }
       """
     )
 }
-type Price {
-  amount: Float
-  isActive: Boolean
-  currency: String
-  recurringInterval: RecurringInterval
-  recurringCount: Int
-}
-enum RecurringInterval {
-  ONE_TIME
-  DAILY
-  MONTHLY
-  ANNUALLY
-}
 type Query {
-  products: [Product]
-    # https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html
+  getFunction(name: String!): LambdaFunction
     @connect(
       source: "lambda"
-      # /2015-03-31/functions/{functionName}/invocations
-      http: { POST: "/2015-03-31/functions/products/invocations" }
+      http: { GET: "/2015-03-31/functions/{$args.name}" }
       selection: """
-      # JSON Example Response 👇
-      # https://github.com/apollographql/connectors-community/tree/main/connectors/aws/json-responses/products.json
-      $.body {
-        id
-        name
-        description
-        image
+      name: $.Configuration.FunctionName
+      configuration: $.Configuration {
+        description: Description
+        tracingConfigMode: TracingConfig.Mode
+        revisionId: RevisionId
+        lastModified: LastModified
+        runtime: Runtime
+        version: Version
+        packageType: PackageType
+        lastUpdateSuccess: LastUpdateStatus->match(
+          ["Successful", true],
+          ["Unsuccessful", false]
+        )
+        arn: FunctionArn
+        kmsKeyArn: KMSKeyArn
+        memorySize: MemorySize
+        timeout: Timeout
+        handler: Handler
+        codeSha256: CodeSha256
+        role: Role
+        state: State
+        stateReason: StateReasonCode
+        architectures: Architectures
+      }
+      concurrency: Concurrency.ReservedConcurrentExecutions
+      code: $.Code {
+        sourceKMSKeyArn: SourceKMSKeyArn
+        resolvedImageUri: ResolvedImageUri
+        repositoryType: RepositoryType
+        error: Error
+        imageUri: ImageUri
+        location: Location
+      }
+      """
+      entity: true
+    )
+  listFunctions(limit: Int = 10, next: String = ""): [LambdaFunction]
+    @connect(
+      source: "lambda"
+      http: { GET: "/2015-03-31/functions" }
+      selection: """
+      $.Functions {
+        name: FunctionName
+        configuration: {
+          description: Description
+          tracingConfigMode: TracingConfig.Mode
+          revisionId: RevisionId
+          lastModified: LastModified
+          runtime: Runtime
+          version: Version
+          packageType: PackageType
+          arn: FunctionArn
+          kmsKeyArn: KMSKeyArn
+          memorySize: MemorySize
+          timeout: Timeout
+          handler: Handler
+          codeSha256: CodeSha256
+          role: Role
+          state: State
+          stateReason: StateReasonCode
+          architectures: Architectures
+        }
       }
       """
     )
