@@ -96,6 +96,14 @@ type Mutation {
       }
       """
     )
+  deleteFunction(name: String!): Boolean
+    @connect(
+      source: "lambda"
+      http: { DELETE: "/2015-03-31/functions/{$args.name}" }
+      selection: """
+      $(true)
+      """
+    )
 }
 type Query {
   getFunction(name: String!): LambdaFunction
