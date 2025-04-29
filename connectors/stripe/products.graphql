@@ -22,7 +22,7 @@ type Product @key(fields:"id"){
   name: String
   price: Price 
 }
-type Price @key(fields: "id", resolvable: false) {
+type Price @key(fields: "id", resolvable: false) @shareable {
   id: ID!
   active: Boolean
   currency: String
