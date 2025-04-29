@@ -67,6 +67,22 @@ type ItemConnection {
 type Item {
   id: ID!
 }
+type Mutation {
+  deleteTable(name: ID!): Boolean
+    @connect(
+      source: "dynamodb"
+      http: {
+        POST: "/"
+        body: """
+        TableName: $args.name
+        """
+        headers: [{ name: "X-Amz-Target", value: "DynamoDB_20120810.DeleteTable" }]
+      }
+      selection: """
+      $(true)
+      """
+    )
+}
 type PageInfo {
   count: Int
   total: Int
