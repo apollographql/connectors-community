@@ -10,7 +10,8 @@ telemetry:
   instrumentation:
     spans: 
       mode: spec_compliant
-
+connectors:
+    preview_connect_v0_2: true
 authentication:
   connector:
     sources:
