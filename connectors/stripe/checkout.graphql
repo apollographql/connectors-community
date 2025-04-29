@@ -16,8 +16,11 @@ extend schema
     }
 )
 
-type Price @key(fields: "id", resolvable: false) {
-  id: ID! @external
+type Price @key(fields: "id", resolvable: false) @shareable {
+  id: ID!
+  active: Boolean 
+  currency: String
+  unitAmount: Float
 }
 
 type Session @key(fields: "id") {
@@ -28,12 +31,16 @@ type Session @key(fields: "id") {
   paymentUrl: String
   items: [LineItem] @connect(
     source: "stripe"
-    http: { GET: "/checkout/session/{$this.id}/line_items}" }
+    http: { GET: "/checkout/sessions/{$this.id}/line_items" }
     selection: """
     # https://docs.stripe.com/api/checkout/sessions/line_items
       $.data {
-        price: {
+        id
+        price {
           id
+          active
+          currency
+          unitAmount: unit_amount
         }
         quantity
       }
@@ -45,7 +52,7 @@ type Query {
   session (id: ID!): Session 
     @connect(
       source: "stripe"
-      http: { GET: "/checkout/session/{$args.id}"}
+      http: { GET: "/checkout/sessions/{$args.id}"}
       selection: """
       # https://docs.stripe.com/api/checkout/sessions/retrieve
         id
@@ -55,6 +62,21 @@ type Query {
         paymentUrl: url
       """
       entity: true
+    )
+  sessions(limit: Int = 3): [Session]
+    @connect(
+      source: "stripe"
+      http: { GET: "/checkout/sessions?limit={$args.limit}" }
+      selection: """
+      # https://docs.stripe.com/api/checkout/sessions/list
+        $.data {
+        id
+          subtotal: amount_subtotal
+          shipping: shipping_cost
+          total: amount_total
+          paymentUrl: url
+        }
+      """
     )
 }
 
@@ -84,6 +106,7 @@ input LineItemInput {
 }
 
 type LineItem {
+  id: ID
   price: Price!
   quantity: Int
 }
