@@ -11,8 +11,8 @@ telemetry:
     spans: 
       mode: spec_compliant
 
-# connectors:
-#   sources:
-#     connectorName.sourceName:
-#       $config:
-#         apiKey: ${env.API_KEY}
+connectors:
+  sources:
+    messages.anthropic:
+      $config:
+        apiKey: ${env.ANTHROPOIC_API_KEY}
