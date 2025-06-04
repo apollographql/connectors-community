@@ -307,10 +307,12 @@ type Query {
 """
   Returns all currently active alerts
   """
-  activeAlerts: AlertConnection
+  activeAlert(next: String!): AlertConnection
     @connect(
       source: "nws"
-      http: { GET: "/alerts/active" }
+      http: { GET: "/alerts/active"
+      queryParams: "cursor: $args.next"
+       }
       selection: """
       pagination {
         next
