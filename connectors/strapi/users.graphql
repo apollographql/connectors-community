@@ -1,7 +1,7 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -46,7 +46,11 @@ type Query {
     @connect(
       source: "strapi"
       http: {
-        GET: "/users?pagination[start]={$args.start}&pagination[limit]={$args.limit}"
+        GET: "/users"
+        queryParams: """
+        pagination[start]: $args.start
+        pagination[limit]: $args.limit
+        """
       }
       selection: """
       # https://docs.strapi.io/dev-docs/api/rest#get-all

@@ -1,7 +1,7 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key"]) # Enable this schema to use Apollo Federation features
   @link( # Enable this schema to use Apollo Connectors
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@connect", "@source"]
   )
   @source(
@@ -39,7 +39,12 @@ type Earthquake {
   @connect(
     source: "location"
     http: {
-      GET: "reverse?lat={$this.geometry.coordinates->slice(1,2)->first}&lon={$this.geometry.coordinates->first}&format=json"
+      GET: "reverse"
+      queryParams: """
+        lat: $this.geometry.coordinates->slice(1,2)->first
+        lon: $this.geometry.coordinates->first
+        format: $('json')
+        """
     }
     selection: """
     $.display_name
@@ -52,7 +57,13 @@ type Query {
     @connect(
       source: "usgs"
       http: {
-        GET: "query?format=geojson&latitude={$args.lat}&longitude={$args.lon}&maxradiuskm={$args.maxRadius}&limit={$args.limit}"
+        GET: "query?format=geojson"
+        queryParams: """
+        latitude: $args.lat
+        longitude: $args.lon
+        maxradiuskm: $args.maxRadius
+        limit: $args.limit
+        """
       }
       selection: """
         $.features

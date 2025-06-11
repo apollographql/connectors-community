@@ -4,7 +4,7 @@ extend schema
     import: ["@key", "@requires", "@shareable"]
   )
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -45,7 +45,12 @@ type Query {
     @connect(
       source: "openai"
       http: {
-        GET: "/chat/completions?before={$args.before}&after={$args.after}&limit={$args.limit}"
+        GET: "/chat/completions"
+        queryParams: """
+        before: $args.before
+        after: $args.after
+        limit: $args.limit
+        """
       }
       selection: """
       pageInfo: {

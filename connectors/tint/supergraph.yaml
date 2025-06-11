@@ -1,4 +1,4 @@
-federation_version: =2.10.0-preview.3
+federation_version: =2.11.0
 subgraphs:
   tint-accounts:
     routing_url: http://accounts

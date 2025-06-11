@@ -4,7 +4,7 @@ extend schema
     import: ["@key", "@requires", "@shareable"]
   )
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(name: "llv2", http: { baseURL: "https://ll.thespacedevs.com/2.3.0/" })
@@ -85,7 +85,14 @@ type Query {
   celestialBodies(search: String, offset: Int = 0, limit: Int = 20): CelestialBodyConnection
     @connect(
       source: "llv2"
-      http: { GET: "/celestial_bodies/?search={$args.search}&limit={$args.limit}&offset={$args.offset}format=json" }
+      http: { GET: "/celestial_bodies/"
+      queryParams: """
+        search: $args.filters.search
+        limit: $args.limit
+        offset: $args.offset
+        format: $('json')
+        """
+       }
       selection: """
       pageInfo {
         count

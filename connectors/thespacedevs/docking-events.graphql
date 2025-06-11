@@ -4,7 +4,7 @@ extend schema
     import: ["@key", "@requires", "@shareable"]
   )
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(name: "llv2", http: { baseURL: "https://ll.thespacedevs.com/2.3.0/" })
@@ -1940,7 +1940,13 @@ type Query {
     @connect(
       source: "llv2"
       http: {
-        GET: "/docking_events/?search={$args.search}&limit={$args.limit}&offset={$args.offset}format=json"
+        GET: "/docking_events/"
+        queryParams: """
+        search: $args.filters.search
+        limit: $args.limit
+        offset: $args.offset
+        format: $('json')
+        """
       }
       selection: """
             pageInfo {

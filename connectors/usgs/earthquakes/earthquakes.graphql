@@ -1,7 +1,7 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key"]) # Enable this schema to use Apollo Federation features
   @link( # Enable this schema to use Apollo Connectors
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@connect", "@source"]
   )
   @source(
@@ -70,7 +70,12 @@ type Query {
   recentEarthquakes(limit: Int = 5): [Earthquake]
     @connect(
       source: "usgs"
-      http: { GET: "query?format=geojson&limit={$args.limit}" }
+      http: { GET: "query" 
+      queryParams: """
+        limit: $args.limit
+        format: $('geojson')
+        """
+      }
       selection: """
         $.features
        {
@@ -116,7 +121,12 @@ type Query {
   earthquakeById(id: ID!): Earthquake
     @connect(
       source: "usgs"
-      http: { GET: "query?format=geojson&eventid={$args.id}" }
+      http: { GET: "query" 
+      queryParams: """
+        eventid: $args.id
+        format: $('geojson')
+        """
+      }
       selection: """
       id
        properties {
@@ -175,7 +185,14 @@ type Query {
     @connect(
       source: "usgs"
       http: {
-        GET: "query?format=geojson&latitude={$args.lat}&longitude={$args.lon}&maxradiuskm={$args.maxRadius}&limit={$args.limit}"
+        GET: "query"
+        queryParams: """
+        latitude: $args.lat
+        longitude: $args.lon
+        maxradiuskm: $args.maxRadius
+        limit: $args.limit
+        format: $('geojson')
+        """
       }
       selection: """
         $.features
