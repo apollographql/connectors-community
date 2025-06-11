@@ -1,7 +1,7 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires", "@shareable"])
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -69,7 +69,12 @@ type Query {
   products(limit: Int = 10, cursor: String): ProductConnection
     @connect(
       source: "stripe"
-      http: { GET: "/products?limit={$args.limit}&starting_after={$args.cursor}"}
+      http: { GET: "/products"
+      queryParams: """
+        limit: $args.limit
+        starting_after: $args.cursor
+        """
+      }
       selection: """
       # https://docs.stripe.com/api/products/list
         pageInfo: {

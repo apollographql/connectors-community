@@ -1,4 +1,4 @@
-federation_version: =2.11.0-preview.0
+federation_version: =2.11.0
 subgraphs:
   stripe-checkout:
     routing_url: http://stripe-checkout

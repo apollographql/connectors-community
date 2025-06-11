@@ -4,7 +4,7 @@ extend schema
     import: ["@key", "@requires"]
   )
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -33,7 +33,12 @@ type Query {
     @connect(
       source: "trimblemaps"
       http: {
-        GET: "ww/api/search?query={$args.lat},{$args.long}&matchNamedRoadsOnly=true&maxCleanupMiles=0.2"
+        GET: "ww/api/search"
+        queryParams: """
+        query: $([$args.lat, $args.long])->joinNotNull(",") 
+        matchNamedRoadsOnly: $('true')
+        maxCleanupMiles: $('0.2')
+        """
       }
       selection: """
       # https://developer.trimblemaps.com/restful-apis/location/single-search/single-search-api/#kbd-classkbd-get-roundedgetkbd-search
@@ -45,7 +50,12 @@ type Query {
     @connect(
       source: "trimblemaps"
       http: {
-        GET: "na/api/search?query={$args.address},{$args.city}&countries=US&states={$args.state}"
+        GET: "na/api/search"
+        queryParams: """
+        query: $([$args.address, $args.city])->joinNotNull(",") 
+        states: $args.state
+        countries: $('US')
+        """
       }
       selection: """
       # https://developer.trimblemaps.com/restful-apis/location/single-search/single-search-api/#kbd-classkbd-get-roundedgetkbd-search

@@ -4,7 +4,7 @@ extend schema
     import: ["@key", "@requires"]
   )
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -27,7 +27,11 @@ type Person {
     @connect(
       source: "TripPin"
       http: {
-        GET: "(S(jl4zbkgydqfv3qjad3f3xmrb))/TripPinServiceRW/People('{$this.id}')/Trips?$top={$args.limit}&$skip={$args.offset}"
+        GET: "(S(jl4zbkgydqfv3qjad3f3xmrb))/TripPinServiceRW/People('{$this.id}')/Trips"
+        queryParams: """
+        '$top': $args.limit
+        '$skip': $args.offset
+        """
       }
       selection: """
       $.value {
@@ -89,7 +93,11 @@ type Query {
     @connect(
       source: "TripPin"
       http: {
-        GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People?$top={$args.limit}&$skip={$args.offset}"
+        GET: "(S(unfmciiartlvloowd54bozof))/TripPinServiceRW/People"
+         queryParams: """
+        '$top': $args.limit
+        '$skip': $args.offset
+        """
       }
       selection: """
       # JSON Example Response 👇

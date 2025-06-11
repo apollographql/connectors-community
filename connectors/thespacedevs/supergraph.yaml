@@ -1,4 +1,4 @@
-federation_version: =2.11.0-preview.1
+federation_version: =2.11.0
 subgraphs:
   agencies:
     routing_url: http://agencies

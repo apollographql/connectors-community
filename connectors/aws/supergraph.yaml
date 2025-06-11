@@ -1,4 +1,4 @@
-federation_version: =2.11.0-preview.0
+federation_version: =2.11.0
 subgraphs:
   aws-lambda:
     routing_url: http://lambda

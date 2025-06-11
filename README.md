@@ -53,7 +53,7 @@ You can place your Apollo key and graph ref in the `.vscode/setting.json` file, 
 The Apollo VS Code extension is setup to work with the root `supergraph.yaml` file. You can modify that file to design a graph using multiple connectors. For example, the following `supergraph.yaml` uses a products connector and checkout connector.
 
 ```yaml
-federation_version: =2.10.0
+federation_version: =2.11.0
 subgraphs:
   stripe-products:
     routing_url: http://stripe-product
