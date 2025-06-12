@@ -16,11 +16,30 @@ extend schema
     }
 )
 
-type Product @key(fields:"id"){
+type Product @key(fields:"id")
+  @connect(
+    source: "stripe"
+    http: {
+      GET: "/products" # /product/:id would be one product at a time and this without an array retrieves all products
+      queryParams: """
+      "ids[]": $batch.id
+      """
+    }
+    selection: """
+    id
+    active
+    name
+    description
+    price: {
+          id: default_price
+        }
+    """
+  ) {
   id: ID!
   active: Boolean
   name: String
-  price: Price 
+  description: String
+  price: Price
 }
 type Price @key(fields: "id", resolvable: false) @shareable {
   id: ID!
@@ -51,20 +70,26 @@ type Query {
       """
       entity: true
     )
-  product (id: ID!): Product 
+   product(ids: [ID!]!): [Product]
     @connect(
       source: "stripe"
-      http: { GET: "/products/{$args.id}"}
-      selection: """ 
+      http: {
+        GET: "/products"
+        queryParams: """
+        "ids[]": $args.ids
+        """
+      }
+      selection: """
       # https://docs.stripe.com/api/products/retrieve
+        $.data {
         id
         active
         name
         price: {
           id: default_price
         }
+      }
       """
-      entity: true
     )
   products(limit: Int = 10, cursor: String): ProductConnection
     @connect(
