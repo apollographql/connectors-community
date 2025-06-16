@@ -1,12 +1,14 @@
 # Apollo Connectors Community
 
-This repository is meant to be an early space for builders to share API connectors to help accelerate the community with rich starting points. There is some basic workflow functionality in this repository that can help a builder get a new project started in seconds with a fantastic developer experience. A new project created with `connectors-community` includes:
+This repository is for builders to share API connectors to help accelerate the community with rich starting points. The basic workflow functionality below can help a builder get a new project started in seconds with a fantastic developer experience. 
 
-- A fully working local instance with everything you need to connect to any REST API
-  - If you want to start with an existing/prebuilt connector in this repo, you can start with that schema
-  - If you want to create a new connector, the basic local instance mirrors what is in our [Getting Started documentation](https://www.apollographql.com/docs/graphos/get-started/guides/rest)
-- Docker file to easily host the project
+The template for creating with `connectors-community` includes:
+
+- A fully working local instance with everything you need to connect to any REST API, just add your APOLLO_KEY and GRAPH_REF and you are ready to go
+  - If you want to start with an existing/prebuilt connector in this repo, you can start with that schema and supergraph
+  - If you want to create a new connector, the steps to set up your local environment with Rover CLI can be found in our [Getting Started documentation](https://www.apollographql.com/docs/quickstart)
 - A graph in GraphOS created with API keys synced to your local project
+- a dockerfile for [easy deployment](https://www.apollographql.com/docs/graphos/connectors/deployment#router-deployment)
 - VS Code supercharged `.vscode` folder
   - `dev` command with hot reloading for all the related files available as a Task
   - Custom terminal profile created that includes GraphOS API keys
@@ -14,58 +16,74 @@ This repository is meant to be an early space for builders to share API connecto
 
 Everything's configured—it all just works. 💪
 
-## Prerequisites
+## Set up your environment
 
-- [Install the Rover CLI](https://www.apollographql.com/docs/rover/getting-started)
-
-## Setup repo to start creating new projects
-
-1. Install packages:
+1. If you have not installed Rover before, install [Rover CLI](https://www.apollographql.com/docs/quickstart):
 
 ```sh
-npm i
+curl -sSL https://rover.apollo.dev/nix/latest | sh 
+```
+2. Run `rover init`
+3. Select the option 'Create a new graph'
+4. Select the option 'Start with one or more REST API's
+5. Name your graph
+
+Next Rover will generate a GRAPH_REF and APOLLO_KEY for you and provide a command to run from the terminal.
+
+It is a best practice to take these values and add them to your terminal environment.  For VSCode, that looks like this:
+
+In VScode > settings.js add the configuration below then restart VSCode.
+
+```
+{
+
+ "terminal.integrated.profiles.osx": {
+
+   "graphos": {
+
+     "path": "zsh",
+
+     "args": ["-l"],
+
+     "env": {
+
+       "APOLLO_KEY": "<YOUR_KEY>",
+
+       "APOLLO_GRAPH_REF": "<GRAPH_REF>"
+
+     }
+
+   }
+
+ },
+
+ "terminal.integrated.defaultProfile.osx": "graphos"
+
+}
 ```
 
-2. Create an `.env` file in the root of this directory with your [user GraphOS API key](https://studio.apollographql.com/user-settings/api-keys):
+Graph development is supported in other IDE's. All directions here are for VSCode.  For more details or working in other environments see [IDE Support Documentation.](https://www.apollographql.com/docs/ide-support)
 
-```sh
-APOLLO_KEY=user:gh.michael-watson:867tg98076gbiln-iugiuy
+## Adding and Running a Prebuilt Connector
+
+1. From the connectors folder, choose the prebuilt Connector you want to work with and add all graphql files plus the supergraph.yaml to your new project.
+2. Next open your terminal and run the following:
+
+```
+rover dev --supergraph-config supergraph.yaml
 ```
 
-## Creating a new project
+## Tip for VSCode users
 
-The wizard is designed to be a quick and easy way to setup a new local environment that is synced with GraphOS. This includes creating a new graph or connecting to an existing graph.
-
-```sh
-npm run start
+1. Install the [VSCode extension](https://www.apollographql.com/docs/ide-support/vs-code) to provide a better development expereince when working with Connectors including syntax highlighting and realt-time feedback.
+   This extension requires a configuration file in the root named `apollo.config.json` with the following inside:
+```
+{
+  "rover": {}
+}
 ```
 
-This will let you select a new or existing connector that is created locally for you and wired up to a graph in GraphOS.
-
-If you face any issues, please open up a GitHub issue with the terminal output.
-
-**Note: The wizard *currently* only works for selecting a single connector. If you want to use multiple connectors, you'll need to copy the schema files for the additional connectors after running the wizard and updating your `supergraph.yaml`/`router.yaml`**
-
-## Just using the repo (manual setup)
-
-You can place your Apollo key and graph ref in the `.vscode/setting.json` file, reload the window and then the `rover dev` Task in VS Code will start working with the local `supergraph.yaml`.
-
-The Apollo VS Code extension is setup to work with the root `supergraph.yaml` file. You can modify that file to design a graph using multiple connectors. For example, the following `supergraph.yaml` uses a products connector and checkout connector.
-
-```yaml
-federation_version: =2.11.0
-subgraphs:
-  stripe-products:
-    routing_url: http://stripe-product
-    schema:
-      file: ./connectors/stripe/products.graphql
-  stripe-checkout:
-    routing_url: http://stripe-checkout
-    schema:
-      file: ./connectors/stripe/checkout.graphql
-```
-
-You can also configure the `rover dev` task for VS Code in the `.vscode/tasks.json` folder:
+2. You can also configure the `rover dev` task for VS Code in the `.vscode/tasks.json` folder:
 
 ```json
 {
@@ -79,7 +97,6 @@ You can also configure the `rover dev` task for VS Code in the `.vscode/tasks.js
     }]
 }
 ```
-
 ## Contributing a connector to the community
 
 We welcome any and all contributions! There are only a couple requirements:
@@ -88,3 +105,4 @@ We welcome any and all contributions! There are only a couple requirements:
 2. *The connector must be working and complete*. You don't have to implement the entire API to contribute, just a portion of it. We just want to ensure that whatever you have implemented is used in the schema; the goal is to try and avoid unused definitions that should be pruned.
 
 That's it! Feel free to open an issue with the ["New Connector" template](./connectors/.template) or a PR with your work. The Apollo DevRel team will help usher your contribution through the process and promote your work to the broader community. If you need some help, you can open a post on the [Apollo Community Forum](https://community.apollographql.com/c/connectors/29) and add the `connectors` tag to it. 
+
