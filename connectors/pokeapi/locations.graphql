@@ -1,6 +1,6 @@
 extend schema
   @link(
-    url: "https://specs.apollo.dev/federation/v2.10"
+    url: "https://specs.apollo.dev/federation/v2.11"
     import: ["@key", "@requires", "@shareable"]
   )
   @link(
