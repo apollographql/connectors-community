@@ -1,7 +1,7 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires", "@shareable"])
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -118,7 +118,12 @@ type Query {
   productOrders(limit: Int = 25, offset: Int = 0): [ProductOrder]
     @connect(
       source: "tmf"
-      http: { GET: "/productOrder?limit={$args.limit}&offset={$args.offset}" }
+      http: { GET: "/productOrder"
+      queryParams: """
+        limit: $args.limit
+        offset: $args.offset
+        """
+       }
       selection: """
         id
         category

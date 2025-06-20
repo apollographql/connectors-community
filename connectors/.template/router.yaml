@@ -12,7 +12,7 @@ telemetry:
       mode: spec_compliant
 
 # connectors:
-#   subgraphs:
-#     connector:
+#   sources:
+#     connectorName.sourceName:
 #       $config:
 #         apiKey: ${env.API_KEY}

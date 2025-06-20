@@ -4,7 +4,7 @@ extend schema
     import: ["@key", "@requires", "@shareable"]
   )
   @link(
-    url: "https://specs.apollo.dev/connect/v0.1"
+    url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@source", "@connect"]
   )
   @source(
@@ -72,7 +72,12 @@ type Query {
     @connect(
       source: "openai"
       http: {
-        GET: "/assistants?before={$args.before}&after={$args.after}&limit={$args.limit}"
+        GET: "/assistants"
+        queryParams: """
+        before: $args.before
+        after: $args.after
+        limit: $args.limit
+        """
       }
       selection: """
       pageInfo: {
@@ -201,7 +206,12 @@ type Thread {
     @connect(
       source: "openai"
       http: {
-        GET: "/threads/{$this.id}/messages?before={$args.before}&after={$args.after}&limit={$args.limit}"
+        GET: "/threads/{$this.id}/messages"
+        queryParams: """
+        before: $args.before
+        after: $args.after
+        limit: $args.limit
+        """
       }
       selection: """
       pageInfo: {
@@ -227,7 +237,12 @@ type Thread {
     @connect(
       source: "openai"
       http: {
-        GET: "/threads/{$this.id}/runs?before={$args.before}&after={$args.after}&limit={$args.limit}"
+        GET: "/threads/{$this.id}/runs"
+        queryParams: """
+        before: $args.before
+        after: $args.after
+        limit: $args.limit
+        """
       }
       selection: """
       pageInfo: {
