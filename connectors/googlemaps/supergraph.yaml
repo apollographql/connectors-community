@@ -1,0 +1,14 @@
+subgraphs:
+  places:
+    routing_url: http://places
+    schema:
+      file: places.graphql
+  distance:
+    routing_url: http://distancematrix
+    schema:
+      file: distancematrix.graphql
+  timezone:
+    routing_url: http://timezone
+    schema:
+      file: timezone.graphql
+federation_version: =2.11.0

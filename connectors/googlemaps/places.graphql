@@ -1,0 +1,105 @@
+extend schema
+  @link(
+    url: "https://specs.apollo.dev/federation/v2.11"
+    import: ["@key", "@shareable", "@external"]
+  ) # Enable this schema to use Apollo Federation features
+  @link( # Enable this schema to use Apollo Connectors
+    url: "https://specs.apollo.dev/connect/v0.2"
+    import: ["@connect", "@source"]
+  )
+ 
+  @source(
+    name: "places"
+    http: { baseURL: "https://maps.googleapis.com/maps/api/place/" }
+  )
+
+type Query {
+  searchForPlace(query: String): [Place]
+    @connect(
+      source: "places"
+      http: {
+        GET: "textsearch/json?query={$args.query}&key=YOUR_API_KEY"
+      }
+      selection: """
+                   $.results {
+        businessStatus: business_status
+        formattedAddress: formatted_address
+        geometry {
+          location {
+            lat
+            lng
+          }
+        }
+        openingHours: opening_hours {
+          openNow: open_now
+        }
+        photos {
+          htmlAttributions: html_attributions
+        }
+        placeId: place_id
+        rating
+        reference
+        types
+        userRatingsTotal: user_ratings_total
+      }
+      """
+    )
+
+  getPlaceDetailsById(placeId: String!): Place
+    @connect(
+      source: "places"
+      http: {
+        GET: "details/json?place_id={$args.placeId}&key=YOUR_API_KEY"
+      }
+      entity: true
+      selection: """
+        $.result {
+        businessStatus: business_status
+        formattedAddress: formatted_address
+        geometry {
+          location {
+            lat
+            lng
+          }
+        }
+        openingHours: opening_hours {
+          openNow: open_now
+        }
+        photos {
+          htmlAttributions: html_attributions
+        }
+        placeId: place_id
+        rating
+        reference
+        types
+        userRatingsTotal: user_ratings_total
+      }
+      """
+    )
+}
+
+type Place @key(fields: "placeId") {
+  placeId: String @shareable
+  businessStatus: String
+  formattedAddress: String
+  geometry: Geometry @shareable
+  openingHours: OpeningHours
+  photos: [Photo]
+  rating: Float
+  reference: String
+  types: [String]
+  userRatingsTotal: Int
+}
+type Geometry {
+  location: Location
+}
+type Location {
+  lat: Float
+  lng: Float
+}
+type OpeningHours {
+  openNow: Boolean
+}
+type Photo {
+  htmlAttributions: [String]
+}
