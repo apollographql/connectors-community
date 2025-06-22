@@ -1,4 +1,4 @@
-# Stripe REST Connector
+# Google Maps REST Connector
 
 This connector currently covers a portion of the [Google Maps Legacy API](https://developers.google.com/maps/documentation/places/web-service/legacy/details).
 
