@@ -7,6 +7,9 @@ extend schema
     url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@connect", "@source"]
   )
+
+  #this connector uses the legacy timezone API.  To enable this in Google, you must create an API key and give permissions to this API
+
     @source(
         name: "timezone"
         http: { baseURL: "https://maps.googleapis.com/maps/api/timezone/" }

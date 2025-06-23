@@ -7,6 +7,7 @@ extend schema
     url: "https://specs.apollo.dev/connect/v0.2"
     import: ["@connect", "@source"]
   )
+  #this connector uses the legacy ditance API.  To enable this in Google, you must create an API key and give permissions to this API
   @source(
     name: "distance"
     http: { baseURL: "https://maps.googleapis.com/maps/api/" }

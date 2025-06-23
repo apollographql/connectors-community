@@ -8,12 +8,16 @@ extend schema
     import: ["@connect", "@source"]
   )
  
+ #this connector uses the legacy places API.  To enable this in Google, you must create an API key and give permissions to this API
   @source(
     name: "places"
     http: { baseURL: "https://maps.googleapis.com/maps/api/place/" }
   )
 
 type Query {
+  """
+  search for a place using natural language such as 'Baltimore' or 'museum Chicago'
+  """
   searchForPlace(query: String): [Place]
     @connect(
       source: "places"
