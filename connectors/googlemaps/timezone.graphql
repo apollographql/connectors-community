@@ -39,15 +39,15 @@ type TimezoneInfo {
   dstOffset: Int
 }
 
-extend type Place @key(fields: "placeId", resolvable: false) {
-  placeId: String @external
-  geometry: Geometry @external
+type Place @key(fields: "id", resolvable: false) {
+  id: String @external
+  location: Location @external
   timezone(timestamp: Int!): TimezoneInfo
-   @requires(fields: "geometry { location { lat lng } }")
+   @requires(fields: "location { latitude longitude }")
     @connect(
       source: "timezone"
       http: {
-        GET: "json?location={$this.geometry.location.lat},{$this.geometry.location.lng}&timestamp={$args.timestamp}&key=YOUR_API_KEY"
+        GET: "json?location={$this.location.latitude},{$this.location.longitude}&timestamp={$args.timestamp}&key=YOUR_API_KEY"
       }
       selection: """
         timeZoneId
@@ -58,11 +58,7 @@ extend type Place @key(fields: "placeId", resolvable: false) {
     )
 }
 
-type Geometry {
-  location: Location @external
-}
-
 type Location {
-  lat: Float @external
-  lng: Float @external
+  latitude: Float @external
+  longitude: Float @external
 }

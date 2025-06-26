@@ -1,4 +1,8 @@
 subgraphs:
+  # places-legacy:
+  #   routing_url: http://places
+  #   schema:
+  #     file: places-legacy.graphql
   places:
     routing_url: http://places
     schema:

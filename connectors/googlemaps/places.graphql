@@ -11,7 +11,15 @@ extend schema
  #this connector uses the legacy places API.  To enable this in Google, you must create an API key and give permissions to this API
   @source(
     name: "places"
-    http: { baseURL: "https://maps.googleapis.com/maps/api/place/" }
+    http: {
+      baseURL: "https://places.googleapis.com/v1/places"
+      headers: [
+        {
+          name: "X-Goog-Api-Key"
+          value: "{$config.GOOGLE_MAPS_API_KEY}"
+        }
+      ]
+    }
   )
 
 type Query {
@@ -22,88 +30,370 @@ type Query {
     @connect(
       source: "places"
       http: {
-        GET: "textsearch/json?query={$args.query}&key=YOUR_API_KEY"
+        POST: "/:searchText"
+        body: """
+        textQuery: $args.query
+        """
+        headers: [
+          {
+            name: "X-Goog-FieldMask"
+            value: "nextPageToken,places.attributions,places.id,places.name,places.accessibilityOptions,places.addressComponents,places.addressDescriptor,places.adrFormatAddress,places.businessStatus,places.containingPlaces,places.displayName,places.formattedAddress,places.googleMapsLinks,places.googleMapsUri,places.iconBackgroundColor,places.iconMaskBaseUri,places.location,places.photos,places.plusCode,places.postalAddress,places.primaryType,places.primaryTypeDisplayName,places.pureServiceAreaBusiness,places.shortFormattedAddress,places.subDestinations,places.types,places.utcOffsetMinutes,places.viewport,places.currentOpeningHours,places.currentSecondaryOpeningHours,places.internationalPhoneNumber,places.nationalPhoneNumber,places.priceLevel,places.priceRange,places.rating,places.regularOpeningHours,places.regularSecondaryOpeningHours,places.userRatingCount,places.websiteUri"
+          }
+        ]
       }
       selection: """
-                   $.results {
-        businessStatus: business_status
-        formattedAddress: formatted_address
-        geometry {
-          location {
-            lat
-            lng
+       $.places {
+        name
+        id
+        types
+        nationalPhoneNumber
+        internationalPhoneNumber
+        formattedAddress
+        addressComponents {
+          longText
+          shortText
+          types
+          languageCode
+        }
+        plusCode {
+          globalCode
+          compoundCode
+        }
+        location {
+          latitude
+          longitude
+        }
+        viewport {
+          low {
+            latitude
+            longitude
+          }
+          high {
+            latitude
+            longitude
           }
         }
-        openingHours: opening_hours {
-          openNow: open_now
+        priceLevel
+        rating
+        googleMapsUri
+        websiteUri
+        regularOpeningHours {
+          openNow
+          periods {
+            open {
+              day
+              hour
+              minute
+            }
+            close {
+              day
+              hour
+              minute
+            }
+          }
+          weekdayDescriptions
+          nextCloseTime
+        }
+        utcOffsetMinutes
+        adrFormatAddress
+        businessStatus
+        userRatingCount
+        iconMaskBaseUri
+        iconBackgroundColor
+        displayName {
+          text
+          languageCode
+        }
+        primaryTypeDisplayName {
+          text
+          languageCode
+        }
+        currentOpeningHours {
+          openNow
+          periods {
+            open {
+              day
+              hour
+              minute
+              date {
+                year
+                month
+                day
+              }
+            }
+            close {
+              day
+              hour
+              minute
+              date {
+                year
+                month
+                day
+              }
+            }
+          }
+          weekdayDescriptions
+          nextCloseTime
+        }
+        primaryType
+        shortFormattedAddress
+        reviews {
+          name
+          relativePublishTimeDescription
+          rating
+          text {
+            text
+            languageCode
+          }
+          originalText {
+            text
+            languageCode
+          }
+          authorAttribution {
+            displayName
+            uri
+            photoUri
+          }
+          publishTime
+          flagContentUri
+          googleMapsUri
         }
         photos {
-          htmlAttributions: html_attributions
+          name
+          widthPx
+          heightPx
+          authorAttributions {
+            displayName
+            uri
+            photoUri
+          }
+          flagContentUri
+          googleMapsUri
+          url: authorAttributions->first.photoUri
         }
-        placeId: place_id
-        rating
-        reference
-        types
-        userRatingsTotal: user_ratings_total
+        paymentOptions {
+          acceptsDebitCards
+          acceptsCashOnly
+        }
+        accessibilityOptions {
+          wheelchairAccessibleParking
+          wheelchairAccessibleEntrance
+          wheelchairAccessibleRestroom
+        }
+        generativeSummary {
+          overview {
+            text
+            languageCode
+          }
+          overviewFlagContentUri
+          disclosureText {
+            text
+            languageCode
+          }
+        }
+        addressDescriptor {
+          landmarks {
+            name
+            placeId
+            displayName {
+              text
+              languageCode
+            }
+            types
+            straightLineDistanceMeters
+            travelDistanceMeters
+          }
+          areas {
+            name
+            placeId
+            displayName {
+              text
+              languageCode
+            }
+            containment
+          }
+        }
+        googleMapsLinks {
+          directionsUri
+          placeUri
+          writeAReviewUri
+          reviewsUri
+          photosUri
+        }
       }
       """
     )
-
-  getPlaceDetailsById(placeId: String!): Place
+}
+type Place @key(fields: "id"){
+  name: String
+  id: String
+  types: [String]
+  priceLevel: String
+  nationalPhoneNumber: String
+  internationalPhoneNumber: String
+  formattedAddress: String
+  addressComponents: [AddressComponent]
+  plusCode: PlusCode
+  location: Location
+  viewport: Viewport
+  rating: Float
+  googleMapsUri: String
+  websiteUri: String
+  regularOpeningHours: OpeningHours
+  utcOffsetMinutes: Int
+  adrFormatAddress: String
+  businessStatus: String
+  userRatingCount: Int
+  iconMaskBaseUri: String
+  iconBackgroundColor: String
+  displayName: LocalizedText
+  primaryTypeDisplayName: LocalizedText
+  currentOpeningHours: OpeningHoursWithPeriods
+  primaryType: String
+  shortFormattedAddress: String
+  reviews: [Review]
+  photos: [Photo]
+  paymentOptions: PaymentOptions
+  accessibilityOptions: AccessibilityOptions
+  generativeSummary: GenerativeSummary
+  addressDescriptor: AddressDescriptor
+  googleMapsLinks: GoogleMapsLinks
+  details: String
     @connect(
       source: "places"
       http: {
-        GET: "details/json?place_id={$args.placeId}&key=YOUR_API_KEY"
-      }
-      entity: true
-      selection: """
-        $.result {
-        businessStatus: business_status
-        formattedAddress: formatted_address
-        geometry {
-          location {
-            lat
-            lng
+        GET: "/{$this.id}/"
+        headers: [
+          {
+            name: "X-Goog-FieldMask"
+            value: "photos"
           }
-        }
-        openingHours: opening_hours {
-          openNow: open_now
-        }
-        photos {
-          htmlAttributions: html_attributions
-        }
-        placeId: place_id
-        rating
-        reference
-        types
-        userRatingsTotal: user_ratings_total
+        ]
       }
+      selection: """
+      $.result
       """
     )
 }
-
-type Place @key(fields: "placeId") {
-  placeId: String @shareable
-  businessStatus: String
-  formattedAddress: String
-  geometry: Geometry @shareable
-  openingHours: OpeningHours
-  photos: [Photo]
-  rating: Float
-  reference: String
+type AddressComponent {
+  longText: String
+  shortText: String
   types: [String]
-  userRatingsTotal: Int
+  languageCode: String
 }
-type Geometry {
-  location: Location
+type PlusCode {
+  globalCode: String
+  compoundCode: String
 }
 type Location {
-  lat: Float
-  lng: Float
+  latitude: Float
+  longitude: Float
+}
+type Viewport {
+  low: Location
+  high: Location
 }
 type OpeningHours {
   openNow: Boolean
+  periods: [OpeningPeriod]
+  weekdayDescriptions: [String]
+  nextCloseTime: String
+}
+type OpeningPeriod {
+  open: OpeningTime
+  close: OpeningTime
+}
+type OpeningTime {
+  day: Int
+  hour: Int
+  minute: Int
+}
+type Date {
+  year: Int
+  month: Int
+  day: Int
+}
+type LocalizedText {
+  text: String
+  languageCode: String
+}
+type OpeningHoursWithPeriods {
+  openNow: Boolean
+  periods: [OpeningPeriodWithDate]
+  weekdayDescriptions: [String]
+  nextCloseTime: String
+}
+type OpeningPeriodWithDate {
+  open: OpeningTimeWithDate
+  close: OpeningTimeWithDate
+}
+type OpeningTimeWithDate {
+  day: Int
+  hour: Int
+  minute: Int
+  date: Date
+}
+type Review {
+  name: String
+  relativePublishTimeDescription: String
+  rating: Float
+  text: LocalizedText
+  originalText: LocalizedText
+  authorAttribution: AuthorAttribution
+  publishTime: String
+  flagContentUri: String
+  googleMapsUri: String
+}
+type AuthorAttribution {
+  displayName: String
+  uri: String
+  photoUri: String
 }
 type Photo {
-  htmlAttributions: [String]
+  name: String
+  widthPx: Int
+  heightPx: Int
+  authorAttributions: [AuthorAttribution]
+  flagContentUri: String
+  googleMapsUri: String
+  url: String
+}
+type PaymentOptions {
+  acceptsDebitCards: Boolean
+  acceptsCashOnly: Boolean
+}
+type AccessibilityOptions {
+  wheelchairAccessibleParking: Boolean
+  wheelchairAccessibleEntrance: Boolean
+  wheelchairAccessibleRestroom: Boolean
+}
+type GenerativeSummary {
+  overview: LocalizedText
+  overviewFlagContentUri: String
+  disclosureText: LocalizedText
+}
+type AddressDescriptor {
+  landmarks: [Landmark]
+  areas: [Area]
+}
+type Landmark {
+  name: String
+  placeId: String
+  displayName: LocalizedText
+  types: [String]
+  straightLineDistanceMeters: Float
+  travelDistanceMeters: Float
+}
+type Area {
+  name: String
+  placeId: String
+  displayName: LocalizedText
+  containment: String
+}
+type GoogleMapsLinks {
+  directionsUri: String
+  placeUri: String
+  writeAReviewUri: String
+  reviewsUri: String
+  photosUri: String
 }

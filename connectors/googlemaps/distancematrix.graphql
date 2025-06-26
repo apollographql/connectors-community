@@ -96,15 +96,15 @@ type TravelEstimateDuration {
   value: Int
 }
 
-extend type Place @key(fields: "placeId", resolvable: false) {
-  placeId: String @external
+type Place @key(fields: "id", resolvable: false) {
+  id: String @external
   
-  # Get travel distance and duration to another place by placeId
+  # Get travel distance and duration to another place by id
   travelTo(destinationPlaceId: String!): TravelEstimate
     @connect(
       source: "distance"
       http: {
-        GET: "/distancematrix/json?origins=place_id:{$this.placeId}&destinations=place_id:{$args.destinationPlaceId}&key=YOUR_API_KEY"
+        GET: "/distancematrix/json?origins=place_id:{$this.id}&destinations=place_id:{$args.destinationPlaceId}&key=YOUR_API_KEY"
       }
       selection: """
       destinationAddresses: destination_addresses
@@ -131,7 +131,7 @@ extend type Place @key(fields: "placeId", resolvable: false) {
     @connect(
       source: "distance"
       http: {
-        GET: "/distancematrix/json?origins=place_id:{$this.placeId}&destinations={$args.destination}&key=YOUR_API_KEY"
+        GET: "/distancematrix/json?origins=place_id:{$this.id}&destinations={$args.destination}&key=YOUR_API_KEY"
       }
       selection: """
       destinationAddresses: destination_addresses
