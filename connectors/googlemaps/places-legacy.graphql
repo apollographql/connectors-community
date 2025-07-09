@@ -106,7 +106,7 @@ type Photo {
         photo_reference: $this.photoReference
         maxwidth: $args.width
         maxheight: $args.height
-        key:$('AIzaSyCmbzKvqbGfbIsGVGZuYRyeg5RK7zWg7yw')
+        key:$(config.key)
         skipHttpRedirect: $(true)
         """
       }
