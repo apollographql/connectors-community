@@ -4,8 +4,9 @@ This connector currently contains subgraphs schemas for:
 
 [The Art Institute of Chicago API](https://api.artic.edu/docs/#introduction)
 [The Metropolitan Museum of Art](https://metmuseum.github.io/?ref=public_apis&utm_medium=website)
+[The Cleveland Museum of Art](https://openaccess-api.clevelandart.org/#appendix-d)
 
-These Apis are public and free to use, see the respective documentaiton for more information about usage and limitations.
+These Apis are public and free to use, see the respective documentation for more information about usage and limitations.
 
 These subgraph files are complimentary but do not depend on each other, they can be used independently.
 
