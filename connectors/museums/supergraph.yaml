@@ -7,4 +7,8 @@ subgraphs:
     routing_url: http://met
     schema:
       file: metMuseum.graphql
+  cma:
+    routing_url: http://cma
+    schema:
+      file: clevelandArt.graphql
 federation_version: =2.11.0
