@@ -1,0 +1,923 @@
+openapi: 3.0.0
+info:
+  version: 1.5.2
+  title: Unified Shipment Tracking API
+  contact:
+    name: "Support"
+    url: "https://developer.dhl.com/help-center"
+  description: >-
+    ### DHL Shipment Tracking API
+
+    The unified DHL tracking experience.
+
+    Detailed documentation and release notes are available at https://developer.dhl/api-reference/shipment-tracking.
+servers:
+  - url: https://api-test.dhl.com/track
+    description: Test server
+  - url: https://api-eu.dhl.com/track
+    description: Production server
+paths:
+  /shipments:
+    summary: Shipments
+    description: >-
+      Information about shipments identified by the tracking number parameter.
+    get:
+      operationId: getTrackingShipment
+      summary: Retrieve Tracking Information
+      description: >-
+        Retrieves the tracking information for shipments(s). The shipments are identified using the required `trackingNumber` query parameter.
+      parameters:
+        - $ref: '#/components/parameters/trackingNumber'
+        - $ref: '#/components/parameters/service'
+        - $ref: '#/components/parameters/requesterCountryCode'
+        - $ref: '#/components/parameters/originCountryCode'
+        - $ref: '#/components/parameters/recipientPostalCode'
+        - $ref: '#/components/parameters/language'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      security:
+        - ApiKeyAuth: [ ]
+      responses:
+        '200':
+          description: >-
+            Shipments information for given trackingNumber were found and retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingShipments'
+              examples:
+                shipment:
+                  $ref: '#/components/examples/trackingShipments'
+        '404':
+          description: Shipment was not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+components:
+  # Security
+  # --------------------------------------------------
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: DHL-API-Key
+  # Parameters
+  # --------------------------------------------------
+  parameters:
+    # Query parameters
+    trackingNumber:
+      name: trackingNumber
+      in: query
+      description: >-
+        The tracking number of the shipment for which to return the information.
+      required: true
+      schema:
+        type: string
+    service:
+      name: service
+      in: query
+      description: >-
+        Hint which service (provider) should be used to resolve the tracking number.
+      required: false
+      schema:
+        $ref: '#/components/schemas/Service'
+    language:
+      name: language
+      in: query
+      description: >-
+        ISO 639-1 2-character language code for the response. This parameter serves as an indication of the client preferences ONLY. Language availability depends on the service used. The actual response language is indicated by the Content-Language header.
+      required: false
+      schema:
+        type: string
+        default: en
+    requesterCountryCode:
+      name: requesterCountryCode
+      in: query
+      description: >-
+        Optional [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code represents country of the consumer of the API response. It optimizes the return of the API response.
+      required: false
+      schema:
+        type: string
+    originCountryCode:
+      name: originCountryCode
+      in: query
+      description: >-
+        Optional [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the shipment origin to further qualify the shipment tracking number (`trackingNumber`) parameter of the request.
+      required: false
+      schema:
+        type: string
+    recipientPostalCode:
+      name: recipientPostalCode
+      in: query
+      description: >-
+        Postal code of the destination address to
+
+        * further qualify the shipment tracking number (trackingNumber) parameter of the request or
+
+        * parcel-nl and parcel-de services to display full set of data in the response.
+      required: false
+      schema:
+        type: string
+    offset:
+      name: offset
+      in: query
+      description: >-
+        Pagination parameter. Offset from the start of the result set at which to retrieve the remainder of the results (if any).
+      required: false
+      schema:
+        type: number
+        default: 0
+    limit:
+      name: limit
+      in: query
+      description: >-
+        Pagination parameter. Maximal number of results to retireve.
+      required: false
+      schema:
+        type: number
+        default: 5
+  # Schemas
+  # --------------------------------------------------
+  schemas:
+    # Tracking elements schemas
+    TrackingShipments:
+      description: Unified tracking response object
+      type: object
+      properties:
+        url:
+          description: A link to current page
+          type: string
+          format: uri
+        prevUrl:
+          description: A link to the previous page
+          type: string
+          format: uri
+        nextUrl:
+          description: A link to the next page
+          type: string
+          format: uri
+        firstUrl:
+          description: A link to the first page
+          type: string
+          format: uri
+        lastUrl:
+          description: A link to the last page
+          type: string
+          format: uri
+        shipments:
+          description: An array of unified tracking shipments
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackingShipment'
+        possibleAdditionalShipmentsUrl:
+          description: An array of business services, where should be potentially shipment found
+          type: array
+          items:
+            type: string
+            format: uri
+    TrackingShipment:
+      description: Unified tracking shipment
+      type: object
+      properties:
+        '@ttl':
+          $ref: '#/components/schemas/ttl'
+        id:
+          description: Shipment identification tracking number
+          type: string
+        service:
+          $ref: '#/components/schemas/Service'
+        division:
+          description: The (sub)division of service provider that owns the shipment
+          type: string
+        origin:
+          $ref: '#/components/schemas/SecuredPlace'
+        destination:
+          $ref: '#/components/schemas/SecuredPlace'
+        status:
+          $ref: '#/components/schemas/TrackingShipmentStatus'
+        pickUpDate:
+          description: Shipment pickup date
+          type: string
+          format: date-time
+        estimatedTimeOfDelivery:
+          description: Estimated time of delivery
+          type: string
+          format: date-time
+        estimatedDeliveryTimeFrame:
+          $ref: '#/components/schemas/EstimatedDeliveryTimeFrame'
+        estimatedTimeOfDeliveryRemark:
+          description: Human-readable description of the estimated delivery time
+          type: string
+        serviceUrl:
+          description: Custom link to BU tracking service
+          type: string
+          format: uri
+        rerouteUrl:
+          description: Custom link to BU rerouting service, if available for the current status of the shipment
+          type: string
+          format: uri
+        returnFlag:
+          $ref: '#/components/schemas/ReturnFlag'
+        details:
+          $ref: '#/components/schemas/TrackingShipmentDetails'
+        events:
+          description: Historical list of events & timestamps
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackingShipmentEvent'
+    TrackingShipmentDetails:
+      description: Shipment Details
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/Product'
+        provider:
+          $ref: '#/components/schemas/Provider'
+        receiver:
+          $ref: '#/components/schemas/PersonEntity'
+        sender:
+          $ref: '#/components/schemas/PersonEntity'
+        carrier:
+          $ref: '#/components/schemas/PersonEntity'
+        proofOfDelivery:
+          $ref: '#/components/schemas/ProofOfDelivery'
+        proofOfDeliverySignedAvailable:
+          type: boolean
+          description: \'Yes\' if signer identification is available
+        totalNumberOfPieces:
+          description: Total number of items or pieces in the shipment
+          type: integer
+          format: int32
+        pieceIds:
+          description: Ids of all the items or pieces in the shipment
+          type: array
+          items:
+            $ref: '#/components/schemas/PieceId'
+        weight:
+          $ref: '#/components/schemas/QuantitativeValue'
+        volume:
+          $ref: '#/components/schemas/QuantitativeValue'
+        loadingMeters:
+          description: A loading meter standard unit of measurement for transport by truck
+          type: number
+          format: float
+        dimensions:
+          $ref: '#/components/schemas/Dimensions'
+        references:
+          description: A list of indications that refers to related shipment
+          type: array
+          items:
+            $ref: '#/components/schemas/Reference'
+        valueAddedServices:
+          description: Services I booked together with my Tracking details
+          type: object
+          properties:
+            services:
+              description: List of customer services
+              type: array
+              items:
+                $ref: '#/components/schemas/ValueAddedService'
+        controlledDataCodes:
+          description: Extra Controlled Access Data Codes
+          type: array
+          items:
+            $ref: '#/components/schemas/ControlledDataCode'
+        'dgf:routes':
+          description: DHL Global Forwarding routing Details
+          type: array
+          items:
+            $ref: '#/components/schemas/DgfRoute'
+    TrackingShipmentStatus:
+      description: High-level shipment status
+      type: object
+      properties:
+        timestamp:
+          description: A combination of date and time of day
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/SecuredPlace'
+        statusCode:
+          $ref: '#/components/schemas/StatusCode'
+        status:
+          description: Short description of the status - title
+          type: string
+        description:
+          description: Human-readable detailed description
+          type: string
+        remark:
+          description: Remark regarding the shipment status
+          type: string
+        nextSteps:
+          description: Description of the next steps
+          type: string
+      required:
+        - timestamp
+        - statusCode
+    TrackingShipmentEvent:
+      description: Shipment movement information
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TrackingShipmentStatus'
+        - properties:
+            pieceIds:
+              description: Ids of all the items or pieces in the shipment
+              type: array
+              items:
+                $ref: '#/components/schemas/PieceId'
+    ttl:
+      description: Define the TTL value in seconds of shipment between 30 and 365 days
+      type: integer
+      format: int32
+      minimum: 2592000
+      maximum: 31536000
+      default: 15552000
+    ProblemDetail:
+      description: A problem detail response
+      type: object
+      properties:
+        detail:
+          description: A human-readable explanation specific to this occurrence of the problem
+          example: Detailed explanation of problem
+          type: string
+        instance:
+          description: A URI reference that identifies the specific occurrence of the problem
+          example: https://www.some.uri/issue/400
+          format: uri
+          type: string
+        status:
+          description: The HTTP status code
+          example: 400
+          type: number
+        title:
+          description: A short, human-readable summary of the problem type
+          example: Something already happen
+          type: string
+        type:
+          description: An identity of caused exception class
+          example: SomeException
+          type: string
+    Service:
+      description: Service (provider) used to resolve this tracking number (id)
+      type: string
+      enum:
+        - dgf
+        - dsc
+        - ecommerce
+        - ecommerce-apac
+        - ecommerce-europe
+        - ecommerce-ppl
+        - express
+        - freight
+        - parcel-de
+        - parcel-nl
+        - parcel-pl
+        - parcel-uk
+        - post-de
+        - post-international
+        - sameday
+        - svb
+      example: express
+      nullable: false
+      x-enum-varnames:
+        - DGF
+        - DSC
+        - ECM
+        - ECP
+        - ECE
+        - PPL
+        - XPR
+        - FRT
+        - PAD
+        - PAN
+        - PAP
+        - PUK
+        - PSD
+        - DPI
+        - SMD
+        - SVB
+    SecuredPlace:
+      description: The location of object
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/SecuredAddress'
+        servicePoint:
+          $ref: '#/components/schemas/ServicePoint'
+    SecuredAddress:
+      description: The mailing address secured by policy
+      properties:
+        '@policy':
+          $ref: '#/components/schemas/SecretPolicy'
+        addressLocality:
+          description: Text specifying the name of the locality, for example a city
+          type: string
+          example: Prague
+        addressLocalityServicing:
+          description: Text specifying a detail of address locality
+          type: string
+          example: Chodov
+        addressRegion:
+          description: Text specifying a detail of country
+          type: string
+          example: Prague 11
+        countryCode:
+          description: Code specifying the country for the address using ISO 3166-1
+          format: country-code
+          type: string
+          example: CZ
+        postalCode:
+          description: Text specifying the postal code for an address
+          type: string
+          example: '14000'
+        streetAddress:
+          description: The street address expressed as free form text
+          type: string
+          example: Batman Avenue 1040
+    ServicePoint:
+      properties:
+        url:
+          type: string
+        label:
+          type: string
+    SecretPolicy:
+      description: A secret policy protecting sensitive information
+      type: string
+      enum:
+        - none
+        - postal-code
+      default: postal-code
+      example: postal-code
+    EstimatedDeliveryTimeFrame:
+      description: A term when shipment is expected to arrive
+      type: object
+      properties:
+        estimatedFrom:
+          description: The start date of the estimated time frame
+          format: date-time
+          type: string
+        estimatedThrough:
+          description: The end date of the estimated time frame
+          format: date-time
+          type: string
+    ReturnFlag:
+      description: A flag whether the delivery is returned back to consignor
+      type: boolean
+      default: false
+    Product:
+      description: Offered product or service
+      type: object
+      properties:
+        deliveryMethodRemark:
+          description: Specific detail of product
+          type: string
+          example: D2P
+        productCode:
+          type: string
+        productName:
+          description: Business unit product or service
+          type: string
+          example: Worldwide Priority
+    ProofOfDelivery:
+      description: An acknowledgment that an order successfully arrived at its intended destination
+      type: object
+      properties:
+        documentUrl:
+          description: The link to related electronic proof of delivery document
+          format: uri
+          type: string
+          example: https://webpod.dhl.com/pod?token=510f1359603a768a57af49cf10083f90&language=en
+        signatureUrl:
+          description: The link to related electronic signature
+          format: uri
+          type: string
+        signed:
+          $ref: '#/components/schemas/PersonEntity'
+        timestamp:
+          description: Date and time of related proof of delivery document
+          format: date-time
+          type: string
+          example: '2022-10-21T12:30:00'
+    PersonEntity:
+      description: A real organization or personal entity, if type is not specified, a Organization implementation is used
+      type: object
+      x-field-extra-annotation: '@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type", visible = true, defaultImpl = com.dhl.utapi.common.dto.UnknownEntity.class)'
+      oneOf:
+        - $ref: '#/components/schemas/UnknownEntity'
+        - $ref: '#/components/schemas/Organization'
+        - $ref: '#/components/schemas/Company'
+        - $ref: '#/components/schemas/Person'
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          UnknownEntity: '#/components/schemas/UnknownEntity'
+          Organization: '#/components/schemas/Organization'
+          Company: '#/components/schemas/Company'
+          Person: '#/components/schemas/Person'
+    Company:
+      description: A business organization
+      type: object
+      properties:
+        '@type':
+          type: string
+          default: Company
+          example: Company
+          x-field-extra-annotation: '@com.dhl.utapi.common.dto.validation.PersonEntityTypeConstraint'
+        '@policy':
+          default: SecretPolicy.POSTAL_CODE
+          allOf:
+            - $ref: '#/components/schemas/SecretPolicy'
+        name:
+          description: The name of the person
+          type: string
+          example: Linford Alene
+        organizationName:
+          description: The name of organization
+          type: string
+          example: The First Dome Ltd.
+    Organization:
+      description: Common organization such as school, club etc.
+      type: object
+      properties:
+        '@type':
+          type: string
+          default: Organization
+          example: Organization
+          x-field-extra-annotation: '@com.dhl.utapi.common.dto.validation.PersonEntityTypeConstraint'
+        '@policy':
+          default: SecretPolicy.POSTAL_CODE
+          allOf:
+            - $ref: '#/components/schemas/SecretPolicy'
+        name:
+          description: The name of the person
+          type: string
+          example: Linford Alene
+        organizationName:
+          description: The name of organization
+          type: string
+          example: Highgate School and Academy
+    Person:
+      description: A person
+      properties:
+        '@type':
+          type: string
+          default: Person
+          example: Person
+          x-field-extra-annotation: '@com.dhl.utapi.common.dto.validation.PersonEntityTypeConstraint'
+        '@policy':
+          default: SecretPolicy.POSTAL_CODE
+          allOf:
+            - $ref: '#/components/schemas/SecretPolicy'
+        familyName:
+          description: Family name, the last name of a person
+          type: string
+        givenName:
+          description: Given name, the first name of a person
+          type: string
+        name:
+          description: The name of the person
+          type: string
+          example: Dariel Leola
+    UnknownEntity:
+      description: Technical internal integration object, not intended for direct integration! Use Organization or Person please.
+      properties:
+        '@type':
+          type: string
+          default: UnknownEntity
+          x-field-extra-annotation: '@com.dhl.utapi.common.dto.validation.PersonEntityTypeConstraint'
+        '@policy':
+          default: null
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/SecretPolicy'
+        familyName:
+          type: string
+        givenName:
+          type: string
+        name:
+          type: string
+        organizationName:
+          type: string
+    Provider:
+      description: The service provider, service operator, or service performer
+      example:
+        destinationProvider: freight
+      type: object
+      required:
+        - destinationProvider
+      properties:
+        destinationProvider:
+          description: The name of the provider organization handling the delivery in the destination country
+          type: string
+          enum:
+            - acs-courier
+            - anpost
+            - bpost
+            - bring
+            - chronopost
+            - colis-prive
+            - econnect
+            - express
+            - fastway
+            - freight
+            - freight-fr
+            - freight-se
+            - hrvatska-posta
+            - magyar-posta
+            - oepag
+            - parcel-be
+            - parcel-bl
+            - parcel-cz
+            - parcel-de
+            - parcel-es
+            - parcel-iberia
+            - parcel-lu
+            - parcel-nl
+            - parcel-pl
+            - parcel-pt
+            - parcel-uk
+            - posta
+            - posta-slovenije
+            - posti
+            - poste-italiane
+            - ppl
+            - rapido
+            - relais-colis
+            - slovak-parcel-service
+            - speedy
+            - sps
+            - trans-o-flex
+            - urgent-cargus
+    PieceId:
+      description: Identification of item or piece in the shipment
+      type: string
+    QuantitativeValue:
+      description: A point value or interval for product characteristics and other purposes
+      type: object
+      properties:
+        unitText:
+          description: A string or text indicating the unit of measurement
+          type: string
+          example: m
+        value:
+          description: The value of the quantitative value or property value node
+          type: number
+          example: 1.5
+    Dimensions:
+      description: A measurable extent of a particular kind of delivery
+      type: object
+      properties:
+        height:
+          $ref: '#/components/schemas/QuantitativeValue'
+        length:
+          $ref: '#/components/schemas/QuantitativeValue'
+        width:
+          $ref: '#/components/schemas/QuantitativeValue'
+    Reference:
+      description: An indication that refers to related shipment
+      type: object
+      properties:
+        '@scope':
+          $ref: '#/components/schemas/SecretScope'
+        number:
+          description: A value of reference
+          type: string
+        type:
+          $ref: '#/components/schemas/ReferenceType'
+      required:
+        - type
+    ReferenceType:
+      description: Type of reference
+      type: string
+      enum:
+        - container-number
+        - customer-confirmation-number
+        - customer-reference
+        - domestic-consignment-id
+        - ecommerce-number
+        - housebill
+        - local-tracking-number
+        - masterbill
+        - payer-account-number
+        - receiver-account-number
+        - reference
+        - shipment-id
+        - shipper-account-number
+      example: customer-confirmation-number
+    SecretScope:
+      description: A secret scope of protected or sensitive information
+      type: string
+      enum:
+        - public
+        - secret
+        - sensitive
+      example: public
+    ValueAddedService:
+      description: End customer service
+      type: object
+      properties:
+        serviceType:
+          type: string
+          enum:
+            - bulky
+            - pickup
+            - gogreen
+            - priority
+            - extraInsurance
+            - directInjection
+            - cashOnDelivery
+        serviceCriteria:
+          type: string
+        serviceFlag:
+          type: boolean
+    ControlledDataCode:
+      type: string
+      enum:
+        - consignee-city
+        - servicepoint-facilityId
+        - servicepoint-url
+        - shipper-city
+        - signatory-name
+      example: consignee-city
+    # (DGF) DHL Global Forwarding Namespace
+    DgfRoute:
+      description: DHL Global Forwarding Route
+      type: object
+      properties:
+        'dgf:vesselName':
+          description: Vessel Name for Ocean
+          type: string
+          example: MAERSK SARAT
+        'dgf:voyageFlightNumber':
+          description: Voyage number for Ocean, Flight Carrier and Number for Air
+          type: string
+          example: TR TRUCK
+        'dgf:airportOfDeparture':
+          $ref: '#/components/schemas/DgfAirport'
+        'dgf:airportOfDestination':
+          $ref: '#/components/schemas/DgfAirport'
+        'dgf:estimatedDepartureDate':
+          description: Flight Estimated Date and Time of Departure
+          type: string
+          format: date-time
+        'dgf:estimatedArrivalDate':
+          description: Flight Estimated Date and Time of Arrival
+          type: string
+          format: date-time
+        'dgf:placeOfAcceptance':
+          $ref: '#/components/schemas/DgfLocation'
+        'dgf:portOfLoading':
+          $ref: '#/components/schemas/DgfLocation'
+        'dgf:portOfUnloading':
+          $ref: '#/components/schemas/DgfLocation'
+        'dgf:placeOfDelivery':
+          $ref: '#/components/schemas/DgfLocation'
+    DgfAirport:
+      description: DHL Global Forwarding Airport
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/DgfLocation'
+      properties:
+        'dgf:locationCode':
+          description: Airport of departure/destination in IATA code format
+          type: string
+          example: AMS
+        countryCode:
+          description: Airport of departure/destination ISO country code
+          type: string
+          format: country-code
+          example: NL
+    DgfLocation:
+      description: DHL Global Forwarding Location
+      type: object
+      properties:
+        'dgf:locationName':
+          description: The name of the location
+          type: string
+          example: GOTHENBURG
+    StatusCode:
+      description: Code of the status (high-level grouping statuses)
+      type: string
+      enum:
+        - delivered
+        - failure
+        - pre-transit
+        - transit
+        - unknown
+      example: delivered
+
+  # Examples
+  # --------------------------------------------------
+  examples:
+    trackingShipments:
+      summary: Tracking shipment
+      value:
+        url: /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&limit=10
+        firstUrl: /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&limit=10
+        prevUrl: /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&limit=10
+        nextUrl: /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&limit=10
+        lastUrl: /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&limit=10
+        shipments:
+          - id: GMDBD8E9CCE94842E495B7
+            service: ecommerce
+            origin:
+              address:
+                countryCode: US
+                postalCode: '84003'
+                addressLocality: AMERICAN FORK
+            destination:
+              address:
+                countryCode: GB
+                postalCode: S87FA
+                addressLocality: SHEFFIELD
+            status:
+              timestamp: 2023-01-29T16:02:00
+              location:
+                address:
+                  countryCode: UK
+                  postalCode: HEATHROW
+                  addressLocality: HEATHROW, GB
+              statusCode: transit
+              status: ARRIVED AT CUSTOMS
+            details:
+              product:
+                productName: DHL Parcel Intl Standard
+              weight:
+                value: 0.831
+                unitText: LB
+              references:
+                - number: GMDBD8E9CCE94842E495B7
+                  type: customer-confirmation-number
+                - number: '2042200157621303'
+                  type: ecommerce-number
+                - number: H01PQA0010751022
+                  type: local-tracking-number
+            events:
+              - timestamp: 2023-01-29T16:02:00
+                location:
+                  address:
+                    countryCode: UK
+                    postalCode: HEATHROW
+                    addressLocality: HEATHROW, GB
+                statusCode: transit
+                status: ARRIVED AT CUSTOMS
+              - timestamp: 2023-01-23T08:52:15
+                location:
+                  address:
+                    countryCode: US
+                    postalCode: '90601'
+                    addressLocality: Whittier, CA, US
+                statusCode: unknown
+                status: SCANNED INTO SACK/CONTAINER
+              - timestamp: 2023-01-23T08:52:14
+                location:
+                  address:
+                    countryCode: US
+                    postalCode: '90601'
+                    addressLocality: Whittier, CA, US
+                statusCode: transit
+                status: PROCESSING COMPLETED AT ORIGIN
+              - timestamp: 2023-01-23T08:50:36
+                location:
+                  address:
+                    countryCode: US
+                    postalCode: '90601'
+                    addressLocality: Whittier, CA, US
+                statusCode: unknown
+                status: CLOSE BAG
+              - timestamp: 2023-01-20T14:04:18
+                location:
+                  address:
+                    countryCode: US
+                    postalCode: '90601'
+                    addressLocality: Whittier, CA, US
+                statusCode: transit
+                status: PROCESSED
+              - timestamp: 2023-01-20T10:21:25
+                statusCode: pre-transit
+                status: DHL ECOMMERCE CURRENTLY AWAITING SHIPMENT AND TRACKING WILL BE UPDATED WHEN RECEIVED
+              - timestamp: 2023-01-18T09:39:28
+                location:
+                  address:
+                    countryCode: US
+                    postalCode: '90601'
+                    addressLocality: Whittier, CA, US
+                statusCode: transit
+                status: PACKAGE RECEIVED AT DHL ECOMMERCE DISTRIBUTION CENTER
+              - timestamp: 2023-01-11T11:58:34
+                statusCode: unknown
+                status: LABEL CREATED
+        possibleAdditionalShipmentsUrl:
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=freight
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=dgf
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=parcel-de
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=parcel-nl
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=parcel-pl
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=express
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=post-de
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=sameday
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=parcel-uk
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=ecommerce-apac
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=ecommerce-europe
+          - /track/shipments?trackingNumber=GMDBD8E9CCE94842E495B7&service=post-international

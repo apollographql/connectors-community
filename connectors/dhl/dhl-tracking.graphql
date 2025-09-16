@@ -1,0 +1,76 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.10", import: ["@key", "@requires"])
+  @link(
+    url: "https://specs.apollo.dev/connect/v0.1"
+    import: ["@source", "@connect"]
+  )
+  # https://developer.dhl.com/api-reference/shipment-tracking#get-started-section/
+  @source(
+    name: "dhl-tracking"
+    http: {
+      baseURL: "https://api-eu.dhl.com/track"
+      headers: [{ name: "DHL-API-Key", value: "{$config.apiKey}" }]
+    }
+  )
+
+type TrackingStatus @key(fields: "trackingNumber") {
+  trackingNumber: ID!
+  status: String
+  estimatedDeliveryDate: String
+  estimatedTimeOfDelivery: String
+  service: String
+  origin: Location
+  destination: Location
+  events: [TrackingEvent]
+}
+
+type Location {
+  countryCode: String
+  postalCode: String
+  addressLocality: String
+}
+
+type TrackingEvent {
+  timestamp: String
+  location: Location
+  statusCode: String
+  status: String
+}
+
+type Query {
+  tracking(trackingNumber: ID!): TrackingStatus
+    @connect(
+      source: "dhl-tracking"
+      http: { GET: "/shipments?trackingNumber={$args.trackingNumber}" }
+      selection: """
+        shipments->first {
+          trackingNumber: id
+          status: status.status
+          estimatedDeliveryDate
+          estimatedTimeOfDelivery
+          service
+          origin: $.origin.address {
+            countryCode
+            postalCode
+            addressLocality
+          }
+          destination: $.destination.address {
+            countryCode
+            postalCode
+            addressLocality
+          }
+          events {
+            timestamp
+            location: $.location.address {
+              countryCode
+              postalCode
+              addressLocality
+            }
+            statusCode
+            status
+          }
+        }
+      """
+      entity: true
+    )
+}
